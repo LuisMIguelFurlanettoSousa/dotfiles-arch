@@ -1,45 +1,65 @@
-# dotfiles
+# dotfiles — Hyprland para Arch Linux
 
-> [!IMPORTANT] If you are looking for my old dotfiles (which do not use stow), you can find them [here](https://github.com/maxhu08/dotfiles-old)
+Fork do [maxhu08/dotfiles](https://github.com/maxhu08/dotfiles) com instalação automatizada.
 
-This repo contains all my configs I use.
+## Screenshot
 
-## getting-started
+<!-- TODO: adicionar screenshot -->
 
-My dotfiles are managed with `stow`, which manages symlinks so that the files in this dotfiles repo are synced with the actual configs.
+## Instalação
 
-To get started with using my dotfiles run these commmands:
+Em um Arch Linux com `base`, `linux`, `linux-firmware`, usuário com `sudo` e internet:
 
-```shell
-# arch
-sudo pacman -S stow
-
-# gentoo
-doas emerge -av app-admin/stow
-
-git clone https://github.com/maxhu08/dotfiles
+```bash
+sudo pacman -S git
+git clone https://github.com/LuisMIguelFurlanettoSousa/dotfiles
 cd dotfiles
+./install.sh
+sudo reboot
 ```
 
-After that, you just need to run the stow command to symlink the dotfiles you want.
+Pronto. O script:
 
-> [!CAUTION] I would not recommend stowing stuff like `git` because that contains my .gitconfig or `xorg` because thats specific to my monitor setup
+- Detecta sua GPU (NVIDIA / AMD / Intel) e instala os drivers
+- Instala todos os pacotes necessários (pacman + yay)
+- Aplica todas as configurações via stow
+- Configura Zsh como shell padrão
+- Habilita NetworkManager e Bluetooth
 
-```shell
-# you can stow multiple things in one command!
-stow alacritty fish kitty nvim picom tmux vscode xorg
-```
+## O que está incluído
 
-## install-packages
+| Componente | Programa |
+|---|---|
+| Window Manager | Hyprland |
+| Barra | Waybar |
+| Terminal | Ghostty |
+| Launcher | Wofi |
+| File Manager | Nemo |
+| Lock Screen | Hyprlock |
+| Logout | Wlogout |
+| Wallpaper | swww |
+| Shell | Zsh (com zinit) |
+| Editor | Neovim (NvChad) + VS Code |
+| Night Mode | Hyprsunset |
 
-Make sure to install the programs, stow just symlinks the configs. You still need to install the programs!
+## Atalhos principais
 
-To get all the packages, check out my [rebos-config](https://github.com/maxhu08/rebos-config-arch) for arch.
+| Atalho | Ação |
+|---|---|
+| `SUPER + Enter` | Terminal |
+| `SUPER + Space` | Menu (Wofi) |
+| `SUPER + E` | Gerenciador de arquivos |
+| `SUPER + C` ou `Q` | Fechar janela |
+| `SUPER + F` | Fullscreen |
+| `SUPER + V` | Floating |
+| `SUPER + S` | Screenshot (monitor) |
+| `SUPER + SHIFT + S` | Screenshot (área) |
+| `SUPER + SHIFT + L` | Lock screen |
+| `SUPER + SHIFT + Q` | Menu de logout |
+| `SUPER + 1-0` | Trocar workspace |
+| `SUPER + SHIFT + 1-0` | Mover janela para workspace |
+| `SUPER + H/J/K/L` | Navegar janelas (vim-style) |
 
-## wallpapers
+## Créditos
 
-My wallapers are not in this repo. To access all my of wallpapers, check out my [wallpapers](https://github.com/maxhu08/wallpapers) repo.
-
-## star-history
-
-[![Star History Chart](https://api.star-history.com/svg?repos=maxhu08/dotfiles&type=Date)](https://star-history.com/#maxhu08/dotfiles&Date)
+Baseado no [maxhu08/dotfiles](https://github.com/maxhu08/dotfiles).

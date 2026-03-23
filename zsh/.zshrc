@@ -195,7 +195,6 @@ ZSH_HIGHLIGHT_STYLES[redirection]='fg=#c0caf5'
 ZSH_HIGHLIGHT_STYLES[arg0]='fg=#7dcfff,bold'
 
 # LM Studio CLI
-export PATH="$PATH:/Users/mh/.lmstudio/bin"
 
 typeset -g kernel_version
 kernel_version=$(uname -r 2> /dev/null)

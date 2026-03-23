@@ -36,7 +36,6 @@
     // turn on true to show same all workspaces on each monitor
     "all-outputs": false,
     "format-icons": {
-      // 1-10
       "1": "1",
       "2": "2",
       "3": "3",
@@ -46,67 +45,22 @@
       "7": "7",
       "8": "8",
       "9": "9",
-      "10": "10",
-      // 11-110
-      "11": "1",
-      "12": "2",
-      "13": "3",
-      "14": "4",
-      "15": "5",
-      "16": "6",
-      "17": "7",
-      "18": "8",
-      "19": "9",
-      "110": "10",
-      // 21-110
-      "21": "1",
-      "22": "2",
-      "23": "3",
-      "24": "4",
-      "25": "5",
-      "26": "6",
-      "27": "7",
-      "28": "8",
-      "29": "9",
-      "210": "10"
-
-      // // 1-10
-      // "1": "一",
-      // "2": "二",
-      // "3": "三",
-      // "4": "四",
-      // "5": "五",
-      // "6": "六",
-      // "7": "七",
-      // "8": "八",
-      // "9": "九",
-      // "10": "十",
-      // // 11-10
-      // "11": "一",
-      // "12": "二",
-      // "13": "三",
-      // "14": "四",
-      // "15": "五",
-      // "16": "六",
-      // "17": "七",
-      // "18": "八",
-      // "19": "九",
-      // "110": "十"
+      "10": "10"
     }
   },
   "hyprland/window": {
     "format": "{}"
   },
   "custom/updates": {
-    "exec": "bash -lc 'r=$(checkupdates 2>/dev/null | wc -l); a=$(paru -Qua 2>/dev/null | wc -l); [ $((r+a)) -gt 0 ] && printf \"󰏗   \" || printf \"󰏗   \"'",
+    "exec": "bash -lc 'r=$(checkupdates 2>/dev/null | wc -l); a=$(yay -Qua 2>/dev/null | wc -l); [ $((r+a)) -gt 0 ] && printf \"󰏗   \" || printf \"󰏗   \"'",
     "interval": 600,
     "tooltip": true,
-    "tooltip-format": "Left click: update (paru -Syyu --noconfirm)",
-    "on-click": "kitty -e bash -lc 'paru -Syyu --noconfirm'"
+    "tooltip-format": "Left click: update (yay -Syyu --noconfirm)",
+    "on-click": "ghostty -e bash -lc 'yay -Syyu --noconfirm'"
   },
   "temperature": {
     "format": "{icon} {temperatureC}°C ",
-    "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
+    "thermal-zone": 0,
     "critical-threshold": 80,
     "format-icons": ["", "", ""]
   },
@@ -142,7 +96,7 @@
     "format": "󰖩 ",
     "tooltip-format": "{essid}",
     "interval": 2,
-    "on-click": "kitty -e nmtui"
+    "on-click": "ghostty -e nmtui"
   },
   "battery": {
     "format": "{capacity}% {icon}",
