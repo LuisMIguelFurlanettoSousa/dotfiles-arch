@@ -1,9 +1,24 @@
 {
-  "layer": "top",
-  "position": "bottom",
-  "margin-bottom": 0,
-  "modules-left": ["clock", "hyprland/workspaces", "tray"],
-  "modules-center": ["hyprland/window"],
+  "layer": "bottom",
+  "position": "top",
+  "exclusive": true,
+  "passthrough": false,
+  "spacing": 3,
+  "fixed-center": true,
+  "ipc": true,
+  "margin-top": 3,
+  "margin-left": 8,
+  "margin-right": 8,
+
+  "modules-left": [
+    "clock",
+    "tray"
+  ],
+
+  "modules-center": [
+    "hyprland/workspaces"
+  ],
+
   "modules-right": [
     "custom/updates",
     "temperature",
@@ -12,71 +27,136 @@
     "pulseaudio",
     "battery",
     "custom/nightmode",
-    "custom/bluetooth",
     "network",
     "custom/powermenu"
   ],
+
   "tray": {
-    "icon-size": 16,
-    "spacing": 8
+    "icon-size": 20,
+    "spacing": 4
   },
+
   "clock": {
-    // 24 hour
-    // "format": " {:%H:%M} ",
-    // 12 hour
-    "format": " 󰸗 {:%I:%M %p} ",
-    "interval": 60,
-    "tooltip": true,
-    "tooltip-format": "{:%d %B %H:%M}"
+    "interval": 1,
+    "format": " {:%I:%M %p}",
+    "format-alt": " {:%H:%M   %Y, %d %B, %A}",
+    "tooltip-format": "<tt><small>{calendar}</small></tt>",
+    "calendar": {
+      "mode": "year",
+      "mode-mon-col": 3,
+      "weeks-pos": "right",
+      "on-scroll": 1,
+      "format": {
+        "months": "<span color='#ffead3'><b>{}</b></span>",
+        "days": "<span color='#ecc6d9'><b>{}</b></span>",
+        "weeks": "<span color='#99ffdd'><b>W{}</b></span>",
+        "weekdays": "<span color='#ffcc66'><b>{}</b></span>",
+        "today": "<span color='#ff6699'><b><u>{}</u></b></span>"
+      }
+    }
   },
+
   "hyprland/workspaces": {
     "format": "{icon}",
     "separate-outputs": false,
     "active-only": false,
-    // turn on true to show same all workspaces on each monitor
     "all-outputs": false,
     "format-icons": {
-      "1": "1",
-      "2": "2",
-      "3": "3",
-      "4": "4",
-      "5": "5",
-      "6": "6",
-      "7": "7",
-      "8": "8",
-      "9": "9",
-      "10": "10"
+      "1": "一",
+      "2": "二",
+      "3": "三",
+      "4": "四",
+      "5": "五",
+      "6": "六",
+      "7": "七",
+      "8": "八",
+      "9": "九",
+      "10": "十"
     }
   },
+
   "hyprland/window": {
-    "format": "{}"
+    "format": "{}",
+    "max-length": 55,
+    "separate-outputs": true
   },
+
   "custom/updates": {
-    "exec": "bash -lc 'r=$(checkupdates 2>/dev/null | wc -l); a=$(yay -Qua 2>/dev/null | wc -l); [ $((r+a)) -gt 0 ] && printf \"󰏗   \" || printf \"󰏗   \"'",
+    "exec": "bash -lc 'r=$(checkupdates 2>/dev/null | wc -l); a=$(yay -Qua 2>/dev/null | wc -l); [ $((r+a)) -gt 0 ] && printf \"󰏗 %s\" \"$((r+a))\" || printf \"󰏗\"'",
     "interval": 600,
     "tooltip": true,
-    "tooltip-format": "Left click: update (yay -Syyu --noconfirm)",
+    "tooltip-format": "Clique para atualizar (yay -Syyu)",
     "on-click": "ghostty -e bash -lc 'yay -Syyu --noconfirm'"
   },
+
   "temperature": {
-    "format": "{icon} {temperatureC}°C ",
+    "interval": 10,
+    "tooltip": true,
     "thermal-zone": 0,
-    "critical-threshold": 80,
-    "format-icons": ["", "", ""]
+    "critical-threshold": 82,
+    "format-critical": "{temperatureC}°C {icon}",
+    "format": "{temperatureC}°C {icon}",
+    "format-icons": ["󰈸"]
   },
+
   "memory": {
-    "format": "󰫗 {}% ",
-    "tooltip": "false"
+    "interval": 10,
+    "format": "{used:0.1f}G 󰾆",
+    "format-alt": "{percentage}% 󰾆",
+    "format-alt-click": "click",
+    "tooltip": true,
+    "tooltip-format": "{used:0.1f}GB / {total:0.1f}GB"
   },
+
   "cpu": {
-    "format": " {usage}% ",
-    "tooltip": "false"
+    "format": "{usage}% 󰍛",
+    "interval": 1,
+    "min-length": 5,
+    "format-alt-click": "click",
+    "format-alt": "{icon0}{icon1}{icon2}{icon3} {usage:>2}% 󰍛",
+    "format-icons": ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"],
+    "tooltip": true
   },
+
   "pulseaudio": {
-    "format": " {volume}% ",
-    "scroll-step": 1,
-    "on-click": "pavucontrol"
+    "format": "{icon} {volume}%",
+    "format-bluetooth": "{icon} 󰂰 {volume}%",
+    "format-muted": "󰖁",
+    "format-icons": {
+      "headphone": "",
+      "hands-free": "",
+      "headset": "",
+      "phone": "",
+      "portable": "",
+      "car": "",
+      "default": ["", "", "󰕾", ""]
+    },
+    "scroll-step": 5.0,
+    "on-click": "pavucontrol",
+    "tooltip-format": "{icon} {desc} | {volume}%",
+    "smooth-scrolling-threshold": 1
   },
+
+  "battery": {
+    "align": 0,
+    "full-at": 100,
+    "design-capacity": false,
+    "states": {
+      "good": 95,
+      "warning": 30,
+      "critical": 15
+    },
+    "format": "{icon} {capacity}%",
+    "format-charging": " {capacity}%",
+    "format-plugged": "󱘖 {capacity}%",
+    "format-full": "{icon} Full",
+    "format-alt": "{icon} {time}",
+    "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
+    "format-time": "{H}h {M}min",
+    "tooltip": true,
+    "tooltip-format": "{timeTo} {power}w"
+  },
+
   "custom/nightmode": {
     "exec": "bash -lc '~/.config/waybar/scripts/hyprsunset.sh status'",
     "return-type": "json",
@@ -84,26 +164,24 @@
     "tooltip": true,
     "on-click": "bash -lc '~/.config/waybar/scripts/hyprsunset.sh toggle'"
   },
-  "custom/bluetooth": {
-    "exec": "echo \"󰂯 \"",
-    "interval": 0,
-    "tooltip": true,
-    "tooltip-format": "Bluetooth",
-    "on-click": "blueman-manager",
-    "on-click-right": "blueman-adapters"
-  },
+
   "network": {
-    "format": "󰖩 ",
-    "tooltip-format": "{essid}",
-    "interval": 2,
+    "format": "{ifname}",
+    "format-wifi": "{icon}",
+    "format-ethernet": "󰌘",
+    "format-disconnected": "󰌙",
+    "tooltip-format": "{ipaddr}  {bandwidthUpBits}  {bandwidthDownBits}",
+    "format-linked": "󰈁 {ifname} (No IP)",
+    "tooltip-format-wifi": "{essid} {icon} {signalStrength}%",
+    "tooltip-format-ethernet": "{ifname} 󰌘",
+    "tooltip-format-disconnected": "󰌙 Desconectado",
+    "max-length": 30,
+    "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
     "on-click": "ghostty -e nmtui"
   },
-  "battery": {
-    "format": "{capacity}% {icon}",
-    "format-icons": ["", "", "", "", ""]
-  },
+
   "custom/powermenu": {
-    "format": " ",
+    "format": " ",
     "tooltip": false,
     "on-click": "exec wlogout -p layer-shell"
   }
