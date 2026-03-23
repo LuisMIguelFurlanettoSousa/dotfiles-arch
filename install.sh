@@ -1,23 +1,117 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
 # ============================================================
 # Dotfiles Hyprland — Instalador Automatizado para Arch Linux
 # ============================================================
+#
+# Modo paranóico: log completo, retry em falhas de rede,
+# backup de configs, validação pós-instalação, trap de erros.
+#
+# Uso: ./install.sh
+# Log: ~/dotfiles/install.log
+# ============================================================
 
 DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
+LOG_FILE="$DOTFILES_DIR/install.log"
+BACKUP_DIR="$HOME/dotfiles-backup/$(date +%Y-%m-%d_%H-%M-%S)"
+START_TIME=$(date +%s)
+RETRY_MAX=3
+RETRY_DELAY=5
 
-# Cores para output
+# ============================================================
+# Cores e funções de output
+# ============================================================
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+BOLD='\033[1m'
 NC='\033[0m'
 
-info() { echo -e "${BLUE}[INFO]${NC} $1"; }
-success() { echo -e "${GREEN}[OK]${NC} $1"; }
-warn() { echo -e "${YELLOW}[AVISO]${NC} $1"; }
-error() { echo -e "${RED}[ERRO]${NC} $1"; exit 1; }
+info()    { echo -e "${BLUE}[INFO]${NC} $1" | tee -a "$LOG_FILE"; }
+success() { echo -e "${GREEN}[OK]${NC} $1" | tee -a "$LOG_FILE"; }
+warn()    { echo -e "${YELLOW}[AVISO]${NC} $1" | tee -a "$LOG_FILE"; }
+error()   { echo -e "${RED}[ERRO]${NC} $1" | tee -a "$LOG_FILE"; exit 1; }
+
+# ============================================================
+# Trap de erro global — captura linha e comando que falhou
+# ============================================================
+
+trap_error() {
+    local exit_code=$?
+    local line_number=$1
+    echo "" | tee -a "$LOG_FILE"
+    echo -e "${RED}╔══════════════════════════════════════════╗${NC}" | tee -a "$LOG_FILE"
+    echo -e "${RED}║  ERRO FATAL — instalação interrompida    ║${NC}" | tee -a "$LOG_FILE"
+    echo -e "${RED}╚══════════════════════════════════════════╝${NC}" | tee -a "$LOG_FILE"
+    echo -e "${RED}Linha:${NC} $line_number" | tee -a "$LOG_FILE"
+    echo -e "${RED}Código de saída:${NC} $exit_code" | tee -a "$LOG_FILE"
+    echo -e "${RED}Log completo:${NC} $LOG_FILE" | tee -a "$LOG_FILE"
+    echo "" | tee -a "$LOG_FILE"
+    echo -e "${YELLOW}O script é idempotente. Corrija o problema e rode novamente:${NC}" | tee -a "$LOG_FILE"
+    echo -e "  ${BOLD}./install.sh${NC}" | tee -a "$LOG_FILE"
+    echo "" | tee -a "$LOG_FILE"
+}
+
+trap 'trap_error ${LINENO}' ERR
+
+# ============================================================
+# Iniciar log
+# ============================================================
+
+echo "=== Instalação iniciada em $(date) ===" > "$LOG_FILE"
+echo "Usuário: $(whoami)" >> "$LOG_FILE"
+echo "Hostname: $(hostname)" >> "$LOG_FILE"
+echo "Kernel: $(uname -r)" >> "$LOG_FILE"
+echo "" >> "$LOG_FILE"
+
+info "Log sendo salvo em: $LOG_FILE"
+
+# ============================================================
+# Funções auxiliares
+# ============================================================
+
+# Retry com backoff para comandos que dependem de rede
+retry() {
+    local desc="$1"
+    shift
+    local attempt=1
+
+    while [ $attempt -le $RETRY_MAX ]; do
+        info "  $desc (tentativa $attempt/$RETRY_MAX)..."
+        if "$@" >> "$LOG_FILE" 2>&1; then
+            return 0
+        fi
+
+        if [ $attempt -lt $RETRY_MAX ]; then
+            warn "  Falhou. Tentando novamente em ${RETRY_DELAY}s..."
+            sleep $RETRY_DELAY
+        fi
+        attempt=$((attempt + 1))
+    done
+
+    error "$desc falhou após $RETRY_MAX tentativas. Verifique o log: $LOG_FILE"
+}
+
+# Verificar se um pacote está instalado
+pkg_installed() {
+    pacman -Qi "$1" &>/dev/null
+}
+
+# Backup de arquivo/diretório antes de sobrescrever
+backup_if_exists() {
+    local target="$1"
+    if [ -e "$target" ] && [ ! -L "$target" ]; then
+        mkdir -p "$BACKUP_DIR"
+        local rel_path="${target#$HOME/}"
+        local backup_path="$BACKUP_DIR/$rel_path"
+        mkdir -p "$(dirname "$backup_path")"
+        cp -a "$target" "$backup_path"
+        info "  Backup: $target → $backup_path"
+    fi
+}
 
 # ============================================================
 # 1. Validar pré-requisitos
@@ -35,64 +129,109 @@ if [ ! -f /etc/arch-release ]; then
     error "Este script é exclusivo para Arch Linux."
 fi
 
-# Verificar conexão com internet
-if ! ping -c 1 archlinux.org &>/dev/null; then
-    error "Sem conexão com a internet."
+# Verificar conexão com internet (curl, não ping — firewalls bloqueiam ICMP)
+if ! curl -sf --max-time 10 "https://archlinux.org" > /dev/null 2>&1; then
+    # Fallback: tentar DNS
+    if ! host archlinux.org > /dev/null 2>&1; then
+        error "Sem conexão com a internet. Verifique sua rede."
+    fi
+fi
+
+# Verificar se sudo está configurado
+if ! sudo -v 2>/dev/null; then
+    error "sudo não está configurado para este usuário."
 fi
 
 success "Pré-requisitos validados."
 
 # ============================================================
-# 2. Atualizar sistema
+# 2. Inicializar keyring e atualizar sistema
 # ============================================================
 
+info "Inicializando keyring do pacman..."
+sudo pacman-key --init >> "$LOG_FILE" 2>&1
+sudo pacman-key --populate archlinux >> "$LOG_FILE" 2>&1
+success "Keyring inicializado."
+
 info "Atualizando sistema..."
-sudo pacman -Syu --noconfirm
+retry "Atualização do sistema (pacman -Syu)" sudo pacman -Syu --noconfirm
 success "Sistema atualizado."
 
 # ============================================================
-# 3. Instalar yay (AUR helper)
+# 3. Habilitar multilib (necessário para pacotes lib32-*)
+# ============================================================
+
+if ! grep -q "^\[multilib\]" /etc/pacman.conf; then
+    info "Habilitando repositório multilib..."
+    # Descomentar [multilib] e a linha Include logo abaixo
+    sudo sed -i '/^#\[multilib\]/{s/^#//;n;s/^#//}' /etc/pacman.conf
+    retry "Sincronizar repositórios" sudo pacman -Sy --noconfirm
+    success "Multilib habilitado."
+else
+    success "Multilib já está habilitado."
+fi
+
+# ============================================================
+# 4. Instalar yay (AUR helper)
 # ============================================================
 
 if command -v yay &>/dev/null; then
     success "yay já está instalado."
 else
     info "Instalando yay..."
-    sudo pacman -S --needed --noconfirm git base-devel
+    sudo pacman -S --needed --noconfirm git base-devel >> "$LOG_FILE" 2>&1
+
+    # Verificar dependências críticas do makepkg
+    for dep in fakeroot strip make gcc; do
+        if ! command -v "$dep" &>/dev/null; then
+            error "Dependência '$dep' não encontrada após instalar base-devel. Verifique o pacman."
+        fi
+    done
+
     TEMP_DIR=$(mktemp -d)
-    git clone https://aur.archlinux.org/yay.git "$TEMP_DIR/yay"
+    git clone https://aur.archlinux.org/yay.git "$TEMP_DIR/yay" >> "$LOG_FILE" 2>&1
     cd "$TEMP_DIR/yay"
-    makepkg -si --noconfirm
+    makepkg -si --noconfirm >> "$LOG_FILE" 2>&1
     cd "$DOTFILES_DIR"
     rm -rf "$TEMP_DIR"
+
+    if ! command -v yay &>/dev/null; then
+        error "yay não foi encontrado após instalação. Verifique o log."
+    fi
+
     success "yay instalado."
 fi
 
 # ============================================================
-# 4. Detectar GPU e instalar drivers
+# 5. Detectar GPU e instalar drivers
 # ============================================================
 
 info "Detectando GPU..."
 GPU_INFO=$(lspci -nn | grep -E '\[03[0-9]{2}\]' || true)
 GPU_TYPE="intel" # padrão
 
+echo "GPU detectada (lspci): $GPU_INFO" >> "$LOG_FILE"
+
 if echo "$GPU_INFO" | grep -qi nvidia; then
     GPU_TYPE="nvidia"
     info "GPU NVIDIA detectada."
-    sudo pacman -S --needed --noconfirm nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings
+    retry "Instalar drivers NVIDIA" sudo pacman -S --needed --noconfirm \
+        nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings
 elif echo "$GPU_INFO" | grep -qi 'amd\|radeon'; then
     GPU_TYPE="amd"
     info "GPU AMD detectada."
-    sudo pacman -S --needed --noconfirm mesa vulkan-radeon lib32-mesa lib32-vulkan-radeon
+    retry "Instalar drivers AMD" sudo pacman -S --needed --noconfirm \
+        mesa vulkan-radeon lib32-mesa lib32-vulkan-radeon
 else
     info "GPU Intel detectada (ou não identificada)."
-    sudo pacman -S --needed --noconfirm mesa vulkan-intel lib32-mesa lib32-vulkan-intel
+    retry "Instalar drivers Intel" sudo pacman -S --needed --noconfirm \
+        mesa vulkan-intel lib32-mesa lib32-vulkan-intel
 fi
 
 success "Drivers de GPU instalados ($GPU_TYPE)."
 
 # ============================================================
-# 5. Instalar pacotes
+# 6. Instalar pacotes
 # ============================================================
 
 info "Instalando pacotes via pacman..."
@@ -151,7 +290,7 @@ PACMAN_PKGS=(
     pacman-contrib
 )
 
-sudo pacman -S --needed --noconfirm "${PACMAN_PKGS[@]}"
+retry "Instalar pacotes pacman" sudo pacman -S --needed --noconfirm "${PACMAN_PKGS[@]}"
 success "Pacotes pacman instalados."
 
 info "Instalando pacotes via yay (AUR)..."
@@ -163,25 +302,49 @@ AUR_PKGS=(
     ttf-jetbrains-mono-nerd
 )
 
-yay -S --needed --noconfirm "${AUR_PKGS[@]}"
-success "Pacotes AUR instalados."
+# AUR: instalar um por um com fallback (se um falhar, os outros continuam)
+AUR_FAILED=()
+for pkg in "${AUR_PKGS[@]}"; do
+    if pkg_installed "$pkg"; then
+        success "  $pkg já está instalado."
+        continue
+    fi
+
+    info "  Instalando $pkg..."
+    if yay -S --needed --noconfirm "$pkg" >> "$LOG_FILE" 2>&1; then
+        success "  $pkg instalado."
+    else
+        warn "  $pkg falhou. Continuando com os demais..."
+        AUR_FAILED+=("$pkg")
+    fi
+done
+
+if [ ${#AUR_FAILED[@]} -gt 0 ]; then
+    warn "Pacotes AUR que falharam: ${AUR_FAILED[*]}"
+    warn "Instale manualmente após a conclusão: yay -S ${AUR_FAILED[*]}"
+else
+    success "Todos os pacotes AUR instalados."
+fi
 
 # ============================================================
-# 6. Aplicar env.conf conforme GPU
+# 7. Aplicar env.conf conforme GPU
 # ============================================================
 
 info "Configurando env.conf para GPU $GPU_TYPE..."
 
 if [ "$GPU_TYPE" = "nvidia" ]; then
-    cp "$DOTFILES_DIR/hypr/.config/hypr/conf/env.conf.nvidia" \
-       "$DOTFILES_DIR/hypr/.config/hypr/conf/env.conf"
+    if [ -f "$DOTFILES_DIR/hypr/.config/hypr/conf/env.conf.nvidia" ]; then
+        cp "$DOTFILES_DIR/hypr/.config/hypr/conf/env.conf.nvidia" \
+           "$DOTFILES_DIR/hypr/.config/hypr/conf/env.conf"
+    else
+        warn "Template env.conf.nvidia não encontrado. Mantendo env.conf padrão."
+    fi
 fi
-# Para AMD/Intel, o env.conf padrão (sem variáveis NVIDIA) já está correto.
 
 success "env.conf configurado."
 
 # ============================================================
-# 7. Remover configs conflitantes e aplicar via stow
+# 8. Backup e aplicar configs via stow
 # ============================================================
 
 info "Aplicando configurações via stow..."
@@ -200,47 +363,87 @@ STOW_PACKAGES=(
     vscode
 )
 
-# Remover configs existentes que conflitariam com o stow
+# Backup e remoção de configs conflitantes
 for pkg in "${STOW_PACKAGES[@]}"; do
     if [ -d "$pkg/.config" ]; then
-        # Para cada diretório dentro do pacote stow, remover o equivalente em ~/
-        find "$pkg/.config" -mindepth 1 -maxdepth 1 -type d | while read -r dir; do
-            target_dir="$HOME/.config/$(basename "$dir")"
-            if [ -d "$target_dir" ] && [ ! -L "$target_dir" ]; then
-                info "  Removendo config existente: $target_dir"
-                rm -rf "$target_dir"
+        find "$pkg/.config" -mindepth 1 -maxdepth 1 | while read -r item; do
+            target="$HOME/.config/$(basename "$item")"
+            if [ -e "$target" ] && [ ! -L "$target" ]; then
+                backup_if_exists "$target"
+                rm -rf "$target"
             fi
         done
     fi
 done
 
-# Remover .zshrc existente se não for symlink (conflita com stow)
+# Backup e remover .zshrc existente
 if [ -f "$HOME/.zshrc" ] && [ ! -L "$HOME/.zshrc" ]; then
-    info "  Removendo .zshrc existente..."
+    backup_if_exists "$HOME/.zshrc"
     rm -f "$HOME/.zshrc"
 fi
 
+# Backup e remover .tmux.conf existente
+if [ -f "$HOME/.tmux.conf" ] && [ ! -L "$HOME/.tmux.conf" ]; then
+    backup_if_exists "$HOME/.tmux.conf"
+    rm -f "$HOME/.tmux.conf"
+fi
+
+# Aplicar stow com tratamento de erro por pacote
+STOW_FAILED=()
 for pkg in "${STOW_PACKAGES[@]}"; do
+    if [ ! -d "$DOTFILES_DIR/$pkg" ]; then
+        warn "  Pacote stow '$pkg' não encontrado no repo. Pulando..."
+        continue
+    fi
+
     info "  stow $pkg..."
-    stow --restow "$pkg"
+    if stow --restow "$pkg" >> "$LOG_FILE" 2>&1; then
+        success "  $pkg aplicado."
+    else
+        warn "  stow $pkg falhou. Tentando com --adopt..."
+        if stow --adopt "$pkg" >> "$LOG_FILE" 2>&1; then
+            # --adopt traz os arquivos conflitantes para o repo
+            # Restaurar os arquivos originais do repo
+            git checkout -- "$pkg/" >> "$LOG_FILE" 2>&1 || true
+            stow --restow "$pkg" >> "$LOG_FILE" 2>&1 || true
+            success "  $pkg aplicado (via adopt + restore)."
+        else
+            STOW_FAILED+=("$pkg")
+            warn "  stow $pkg falhou definitivamente. Verifique o log."
+        fi
+    fi
 done
+
+if [ ${#STOW_FAILED[@]} -gt 0 ]; then
+    warn "Pacotes stow que falharam: ${STOW_FAILED[*]}"
+fi
+
+if [ -d "$BACKUP_DIR" ]; then
+    info "Configs anteriores salvas em: $BACKUP_DIR"
+fi
 
 success "Configurações aplicadas."
 
 # ============================================================
-# 8. Configurar Zsh como shell padrão
+# 9. Configurar Zsh como shell padrão
 # ============================================================
 
-if [ "$SHELL" != "$(command -v zsh)" ]; then
+ZSH_PATH="$(command -v zsh)"
+
+if [ "$SHELL" != "$ZSH_PATH" ]; then
     info "Configurando Zsh como shell padrão..."
-    chsh -s "$(command -v zsh)"
-    success "Zsh configurado como shell padrão."
+    # Usar sudo usermod em vez de chsh (não pede senha interativamente)
+    if sudo usermod -s "$ZSH_PATH" "$(whoami)" >> "$LOG_FILE" 2>&1; then
+        success "Zsh configurado como shell padrão."
+    else
+        warn "Falha ao configurar Zsh. Execute manualmente: chsh -s $ZSH_PATH"
+    fi
 else
     success "Zsh já é o shell padrão."
 fi
 
 # ============================================================
-# 9. Criar diretórios necessários
+# 10. Criar diretórios necessários
 # ============================================================
 
 info "Criando diretórios..."
@@ -249,7 +452,7 @@ mkdir -p ~/Pictures/wallpapers/walls
 success "Diretórios criados."
 
 # ============================================================
-# 10. Copiar wallpaper padrão
+# 11. Copiar wallpaper padrão
 # ============================================================
 
 if [ -f "$DOTFILES_DIR/wallpapers/default.jpg" ]; then
@@ -260,30 +463,121 @@ else
 fi
 
 # ============================================================
-# 11. Habilitar serviços
+# 12. Habilitar serviços
 # ============================================================
 
 info "Habilitando serviços..."
-sudo systemctl enable --now NetworkManager 2>/dev/null || true
-sudo systemctl enable --now bluetooth 2>/dev/null || true
-systemctl --user enable pipewire wireplumber 2>/dev/null || true
-success "Serviços habilitados."
+
+# Serviços do sistema (com sudo)
+for svc in NetworkManager bluetooth; do
+    if sudo systemctl enable --now "$svc" >> "$LOG_FILE" 2>&1; then
+        success "  $svc habilitado."
+    else
+        warn "  Falha ao habilitar $svc."
+    fi
+done
+
+# Serviços do usuário (sem sudo, pode falhar em TTY puro)
+if [ -n "${DBUS_SESSION_BUS_ADDRESS:-}" ]; then
+    for svc in pipewire wireplumber; do
+        if systemctl --user enable "$svc" >> "$LOG_FILE" 2>&1; then
+            success "  $svc (user) habilitado."
+        else
+            warn "  Falha ao habilitar $svc (user). Será ativado automaticamente no login."
+        fi
+    done
+else
+    warn "Sessão D-Bus não detectada (TTY puro). PipeWire será habilitado automaticamente no primeiro login gráfico."
+fi
 
 # ============================================================
-# Concluído!
+# 13. Validação pós-instalação
 # ============================================================
 
-echo ""
-echo -e "${GREEN}============================================${NC}"
-echo -e "${GREEN}  Instalação concluída com sucesso!${NC}"
-echo -e "${GREEN}============================================${NC}"
-echo ""
-echo -e "GPU detectada: ${BLUE}$GPU_TYPE${NC}"
-echo -e "Shell: ${BLUE}zsh${NC}"
-echo ""
-echo -e "${YELLOW}Reinicie o computador para aplicar todas as mudanças:${NC}"
-echo -e "  sudo reboot"
-echo ""
-echo -e "Após o reboot, selecione ${BLUE}Hyprland${NC} no seu display manager"
-echo -e "ou inicie manualmente com: ${BLUE}Hyprland${NC}"
-echo ""
+info "Validando instalação..."
+
+CRITICAL_PKGS=(hyprland waybar wofi ghostty zsh stow)
+VALIDATION_FAILED=()
+
+for pkg in "${CRITICAL_PKGS[@]}"; do
+    if command -v "$pkg" &>/dev/null || pkg_installed "$pkg"; then
+        success "  $pkg ✓"
+    else
+        VALIDATION_FAILED+=("$pkg")
+        warn "  $pkg ✗ — NÃO encontrado!"
+    fi
+done
+
+# Validar que os symlinks do stow existem
+CRITICAL_CONFIGS=(
+    "$HOME/.config/hypr/hyprland.conf"
+    "$HOME/.config/waybar/config.jsonc"
+    "$HOME/.config/wofi/config"
+    "$HOME/.zshrc"
+)
+
+for cfg in "${CRITICAL_CONFIGS[@]}"; do
+    if [ -L "$cfg" ] || [ -f "$cfg" ]; then
+        success "  $(basename "$cfg") ✓"
+    else
+        VALIDATION_FAILED+=("$cfg")
+        warn "  $cfg ✗ — NÃO encontrado!"
+    fi
+done
+
+if [ ${#VALIDATION_FAILED[@]} -gt 0 ]; then
+    warn "Validação encontrou ${#VALIDATION_FAILED[@]} problema(s). Verifique o log."
+else
+    success "Todos os componentes críticos validados."
+fi
+
+# ============================================================
+# Resumo final
+# ============================================================
+
+END_TIME=$(date +%s)
+ELAPSED=$(( END_TIME - START_TIME ))
+MINUTES=$(( ELAPSED / 60 ))
+SECONDS_REMAINING=$(( ELAPSED % 60 ))
+
+# Contar pacotes instalados
+TOTAL_PACMAN=$(pacman -Qq 2>/dev/null | wc -l)
+
+echo "" | tee -a "$LOG_FILE"
+echo -e "${GREEN}╔══════════════════════════════════════════╗${NC}" | tee -a "$LOG_FILE"
+echo -e "${GREEN}║  Instalação concluída com sucesso!        ║${NC}" | tee -a "$LOG_FILE"
+echo -e "${GREEN}╚══════════════════════════════════════════╝${NC}" | tee -a "$LOG_FILE"
+echo "" | tee -a "$LOG_FILE"
+echo -e "  GPU detectada:    ${BLUE}$GPU_TYPE${NC}" | tee -a "$LOG_FILE"
+echo -e "  Shell:            ${BLUE}zsh${NC}" | tee -a "$LOG_FILE"
+echo -e "  Pacotes totais:   ${BLUE}$TOTAL_PACMAN${NC}" | tee -a "$LOG_FILE"
+echo -e "  Tempo:            ${BLUE}${MINUTES}min ${SECONDS_REMAINING}s${NC}" | tee -a "$LOG_FILE"
+echo -e "  Log:              ${BLUE}$LOG_FILE${NC}" | tee -a "$LOG_FILE"
+
+if [ -d "$BACKUP_DIR" ]; then
+    echo -e "  Backup:           ${BLUE}$BACKUP_DIR${NC}" | tee -a "$LOG_FILE"
+fi
+
+if [ ${#AUR_FAILED[@]} -gt 0 ]; then
+    echo "" | tee -a "$LOG_FILE"
+    echo -e "  ${YELLOW}Pacotes AUR pendentes: ${AUR_FAILED[*]}${NC}" | tee -a "$LOG_FILE"
+    echo -e "  ${YELLOW}Instale com: yay -S ${AUR_FAILED[*]}${NC}" | tee -a "$LOG_FILE"
+fi
+
+if [ ${#STOW_FAILED[@]} -gt 0 ]; then
+    echo -e "  ${YELLOW}Stow pendentes: ${STOW_FAILED[*]}${NC}" | tee -a "$LOG_FILE"
+fi
+
+if [ ${#VALIDATION_FAILED[@]} -gt 0 ]; then
+    echo -e "  ${YELLOW}Validação pendente: ${VALIDATION_FAILED[*]}${NC}" | tee -a "$LOG_FILE"
+fi
+
+echo "" | tee -a "$LOG_FILE"
+echo -e "${YELLOW}Reinicie o computador para aplicar todas as mudanças:${NC}" | tee -a "$LOG_FILE"
+echo -e "  ${BOLD}sudo reboot${NC}" | tee -a "$LOG_FILE"
+echo "" | tee -a "$LOG_FILE"
+echo -e "Após o reboot, selecione ${BLUE}Hyprland${NC} no seu display manager" | tee -a "$LOG_FILE"
+echo -e "ou inicie manualmente com: ${BLUE}Hyprland${NC}" | tee -a "$LOG_FILE"
+echo "" | tee -a "$LOG_FILE"
+
+echo "=== Instalação finalizada em $(date) ===" >> "$LOG_FILE"

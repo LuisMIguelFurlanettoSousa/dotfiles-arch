@@ -8,3 +8,6 @@ vscode/*
 # zsh completion cache
 zsh/.zcompdump
 zsh/.zcompdump*
+
+# Log de instalação
+install.log
