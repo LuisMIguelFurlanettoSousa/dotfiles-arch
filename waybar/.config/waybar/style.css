@@ -1,89 +1,209 @@
+/* ============================================================
+ * Estilo Waybar — Inspirado no binnewbs/arch-hyprland
+ * Paleta Material Design 3 com semi-transparência
+ * ============================================================ */
+
+@import "colors.css";
+
 * {
-  font-family: "Jetbrains Mono NerdFont";
+  font-family: "JetBrainsMono Nerd Font Propo";
+  font-weight: bold;
+  min-height: 0;
+  font-size: 98%;
+  font-feature-settings: '"zero", "ss01", "ss02", "ss03", "ss04", "ss05", "cv31"';
 }
 
-#waybar {
-  /* background: #171717; */
-  background: #0a0a0a;
-  color: #fff;
+/* ---- Fundo transparente ---- */
+window#waybar,
+window#waybar.empty,
+window#waybar.empty #window {
+  background-color: transparent;
+  padding: 0px;
+  border: 0px;
 }
 
-/* LEFT MODULES */
-
-#clock {
-  color: #fff;
+/* ---- Tooltips ---- */
+tooltip {
+  color: @inverse_surface;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 20px;
 }
+
+tooltip label {
+  color: @inverse_surface;
+}
+
+/* ============================================================
+ * Grupos de módulos — ilhas semi-transparentes
+ * ============================================================ */
+
+.modules-left {
+  background-color: rgba(0, 0, 0, 0.5);
+  color: @secondary;
+  border-radius: 20px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-right: 4px;
+  padding-left: 4px;
+}
+
+.modules-center {
+  background-color: rgba(0, 0, 0, 0.5);
+  color: @secondary;
+  border-radius: 20px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-right: 4px;
+  padding-left: 4px;
+}
+
+.modules-right {
+  background-color: rgba(0, 0, 0, 0.5);
+  color: @secondary;
+  border-radius: 20px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-right: 4px;
+  padding-left: 4px;
+}
+
+/* ============================================================
+ * Workspaces — animações suaves
+ * ============================================================ */
 
 #workspaces button {
-  color: #737373;
+  color: @outline;
+  box-shadow: none;
+  text-shadow: none;
+  padding: 0px;
+  border-radius: 9px;
   padding-left: 4px;
   padding-right: 4px;
-  border-radius: 0px;
+  animation: gradient_f 20s ease-in infinite;
+  transition: all 0.5s cubic-bezier(.55, -0.68, .48, 1.682);
 }
 
 #workspaces button:hover {
-  background-color: #262626;
+  color: @on_secondary_fixed_variant;
+  border-radius: 20px;
+  padding-left: 2px;
+  padding-right: 2px;
+  animation: gradient_f 20s ease-in infinite;
+  transition: all 0.3s cubic-bezier(.55, -0.68, .48, 1.682);
 }
 
 #workspaces button.active {
-  color: #84cc16;
+  color: @inverse_surface;
+  padding-left: 8px;
+  padding-right: 8px;
+  animation: gradient_f 20s ease-in infinite;
+  transition: all 0.3s cubic-bezier(.55, -0.68, .48, 1.682);
+}
+
+#workspaces button.urgent {
+  color: @on_secondary;
+  border-radius: 10px;
+}
+
+/* ============================================================
+ * Módulos individuais — padding e espaçamento
+ * ============================================================ */
+
+#battery,
+#bluetooth,
+#clock,
+#cpu,
+#memory,
+#network,
+#pulseaudio,
+#temperature,
+#tray,
+#window,
+#workspaces,
+#custom-bluetooth,
+#custom-nightmode,
+#custom-powermenu,
+#custom-updates {
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-right: 6px;
+  padding-left: 6px;
+}
+
+/* ============================================================
+ * Indicadores de estado
+ * ============================================================ */
+
+#pulseaudio.muted {
+  color: #cc3436;
+}
+
+#temperature.critical {
+  color: red;
+}
+
+@keyframes blink {
+  to {
+    color: #000000;
+  }
+}
+
+#battery.critical:not(.charging) {
+  color: #f53c3c;
+}
+
+/* ============================================================
+ * Cores individuais dos módulos
+ * ============================================================ */
+
+#clock {
+  color: @on_background;
+}
+
+#window {
+  color: @on_surface_variant;
+}
+
+#custom-updates {
+  color: @primary;
+}
+
+#temperature {
+  color: @tertiary;
+}
+
+#memory {
+  color: @tertiary_fixed_dim;
+}
+
+#cpu {
+  color: @primary_fixed_dim;
+}
+
+#pulseaudio {
+  color: @secondary_fixed_dim;
+}
+
+#battery {
+  color: @on_background;
+}
+
+#custom-nightmode {
+  color: @tertiary;
+}
+
+#custom-bluetooth {
+  color: @primary;
+}
+
+#network {
+  color: @primary;
+}
+
+#custom-powermenu {
+  color: @error;
 }
 
 #tray {
   padding-left: 4px;
-}
-
-/* CENTER MODULE */
-
-#window {
-  color: #fff;
-}
-
-/* RIGHT MODULES */
-
-#custom-updates {
-  color: #84cc16;
-}
-
-#temperature {
-  color: #eab308;
-  margin-right: 4px;
-}
-
-#memory {
-  color: #d946ef;
-  margin-right: 4px;
-}
-
-#cpu {
-  color: #0ea5e9;
-  margin-right: 4px;
-}
-
-#pulseaudio {
-  color: #14b8a6;
-  margin-right: 4px;
-}
-
-#battery {
-  margin-right: 4px;
-}
-
-#custom-nightmode {
-  color: #f97316;
-  margin-right: 8px;
-}
-
-#custom-bluetooth {
-  color: #3b82f6;
-  margin-right: 8px;
-}
-
-#network {
-  color: #3b82f6;
-  margin-right: 8px;
-}
-
-#custom-powermenu {
-  color: #f43f5e;
 }
