@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# ============================================================
+# Menu Live — Tela inicial da ISO Arch Linux + Hyprland
+# ============================================================
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+show_menu() {
+    clear
+    echo ""
+    echo -e "${CYAN}╔══════════════════════════════════════════════╗${NC}"
+    echo -e "${CYAN}║                                              ║${NC}"
+    echo -e "${CYAN}║     ${BOLD}Arch Linux + Hyprland${NC}${CYAN} — Live USB         ║${NC}"
+    echo -e "${CYAN}║                                              ║${NC}"
+    echo -e "${CYAN}╠══════════════════════════════════════════════╣${NC}"
+    echo -e "${CYAN}║                                              ║${NC}"
+    echo -e "${CYAN}║  ${GREEN}[1]${NC} Iniciar Hyprland (test drive)           ${CYAN}║${NC}"
+    echo -e "${CYAN}║  ${BLUE}[2]${NC} Instalar no disco                       ${CYAN}║${NC}"
+    echo -e "${CYAN}║  ${YELLOW}[3]${NC} Shell                                    ${CYAN}║${NC}"
+    echo -e "${CYAN}║                                              ║${NC}"
+    echo -e "${CYAN}╚══════════════════════════════════════════════╝${NC}"
+    echo ""
+}
+
+while true; do
+    show_menu
+    read -rp "$(echo -e "${BOLD}Escolha uma opção [1-3]:${NC} ")" opcao
+
+    case "$opcao" in
+        1)
+            echo -e "${GREEN}Iniciando Hyprland...${NC}"
+            exec Hyprland
+            ;;
+        2)
+            exec instalar-sistema
+            ;;
+        3)
+            echo -e "${YELLOW}Digite 'menu-live' para voltar ao menu.${NC}"
+            exit 0
+            ;;
+        *)
+            echo -e "${RED}Opção inválida. Tente novamente.${NC}"
+            sleep 1
+            ;;
+    esac
+done
