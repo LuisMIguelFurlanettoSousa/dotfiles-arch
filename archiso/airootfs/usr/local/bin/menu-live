@@ -34,8 +34,20 @@ while true; do
 
     case "$opcao" in
         1)
+            echo -e "${GREEN}Preparando Hyprland...${NC}"
+            # Hyprland recusa rodar como root. Criar usuário temporário para o live.
+            if ! id "live" &>/dev/null; then
+                useradd -m -s /bin/bash live
+                # Copiar dotfiles do skel para o usuário live
+                cp -r /etc/skel/.config /home/live/.config 2>/dev/null || true
+                cp -r /etc/skel/Pictures /home/live/Pictures 2>/dev/null || true
+                chown -R live:live /home/live
+                # Permitir acesso ao seat/input para o Hyprland funcionar
+                usermod -aG seat,video,input live 2>/dev/null || true
+            fi
             echo -e "${GREEN}Iniciando Hyprland...${NC}"
-            exec Hyprland
+            # Rodar como usuário live (com acesso ao tty atual)
+            exec runuser -u live -- Hyprland
             ;;
         2)
             exec instalar-sistema
