@@ -100,11 +100,10 @@ if [ -d "$REPO_DIR/ghostty/.config/ghostty" ]; then
     success "  ghostty (config) copiado para skel."
 fi
 
-# ZSH
-if [ -f "$REPO_DIR/zsh/.zshrc" ]; then
-    cp "$REPO_DIR/zsh/.zshrc" "$SKEL_DIR/.zshrc"
-    success "  .zshrc copiado para skel."
-fi
+# ZSH — NÃO copiar .zshrc para skel
+# O pacote grml-zsh-config (do perfil releng) já cria /etc/skel/.zshrc
+# e conflita se o nosso existir. O .zshrc customizado é aplicado depois
+# pelo install.sh via stow no sistema instalado.
 
 # Wallpapers
 if [ -f "$REPO_DIR/wallpapers/default.jpg" ]; then
