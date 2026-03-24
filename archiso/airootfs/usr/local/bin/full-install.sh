@@ -594,9 +594,9 @@ echo "${INSTALL_USER}:${USER_PASS}" | arch-chroot /mnt chpasswd
 # Configurar sudo
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /mnt/etc/sudoers
 
-# Habilitar serviços
+# Habilitar serviços (apenas os que foram instalados no pacstrap)
+# Nota: bluetooth (bluez) será habilitado pelo install.sh quando for instalado
 arch-chroot /mnt systemctl enable NetworkManager >> "$LOG_FILE" 2>&1
-arch-chroot /mnt systemctl enable bluetooth >> "$LOG_FILE" 2>&1
 
 success "Sistema configurado."
 
