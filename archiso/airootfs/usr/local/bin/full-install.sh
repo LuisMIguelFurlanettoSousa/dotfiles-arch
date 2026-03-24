@@ -500,6 +500,18 @@ success "Root montado em /mnt."
 if [ -n "$PART_EFI" ]; then
     mount --mkdir "$PART_EFI" /mnt/boot
     success "EFI montado em /mnt/boot."
+
+    # Limpar arquivos de instalações Linux anteriores na EFI
+    # (preserva /mnt/boot/EFI/ onde ficam os bootloaders do Windows e outros SOs)
+    if ls /mnt/boot/vmlinuz-* /mnt/boot/initramfs-* /mnt/boot/intel-ucode.img /mnt/boot/amd-ucode.img 2>/dev/null | head -1 > /dev/null 2>&1; then
+        info "Limpando arquivos Linux antigos da partição EFI..."
+        rm -f /mnt/boot/vmlinuz-* 2>/dev/null || true
+        rm -f /mnt/boot/initramfs-* 2>/dev/null || true
+        rm -f /mnt/boot/intel-ucode.img 2>/dev/null || true
+        rm -f /mnt/boot/amd-ucode.img 2>/dev/null || true
+        rm -rf /mnt/boot/grub 2>/dev/null || true
+        success "Arquivos Linux antigos removidos da EFI (bootloader Windows preservado)."
+    fi
 fi
 
 # ============================================================
