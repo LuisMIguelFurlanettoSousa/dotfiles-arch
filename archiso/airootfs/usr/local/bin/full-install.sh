@@ -35,13 +35,18 @@ error()   { echo -e "${RED}[ERRO]${NC} $1" | tee -a "$LOG_FILE"; exit 1; }
 trap_error() {
     local exit_code=$?
     local line_number=$1
+    local failed_command="${BASH_COMMAND}"
     echo "" | tee -a "$LOG_FILE"
     echo -e "${RED}╔══════════════════════════════════════════╗${NC}" | tee -a "$LOG_FILE"
     echo -e "${RED}║  ERRO FATAL — instalação interrompida    ║${NC}" | tee -a "$LOG_FILE"
     echo -e "${RED}╚══════════════════════════════════════════╝${NC}" | tee -a "$LOG_FILE"
     echo -e "${RED}Linha:${NC} $line_number" | tee -a "$LOG_FILE"
+    echo -e "${RED}Comando:${NC} $failed_command" | tee -a "$LOG_FILE"
     echo -e "${RED}Código de saída:${NC} $exit_code" | tee -a "$LOG_FILE"
     echo -e "${RED}Log:${NC} $LOG_FILE" | tee -a "$LOG_FILE"
+    echo "" | tee -a "$LOG_FILE"
+    echo -e "${YELLOW}Verifique as últimas linhas do log:${NC}" | tee -a "$LOG_FILE"
+    echo -e "  ${BOLD}tail -50 $LOG_FILE${NC}" | tee -a "$LOG_FILE"
 
     # Tentar desmontar caso tenha falhado no meio
     umount -R /mnt 2>/dev/null || true
@@ -519,10 +524,10 @@ success "Mirrors configurados."
 # ============================================================
 
 # zsh incluído no pacstrap porque useradd usa -s /bin/zsh
-info "Instalando sistema base (pacstrap)..."
+info "Instalando sistema base (pacstrap)... Isso pode levar alguns minutos."
 pacstrap -K /mnt base linux linux-firmware linux-headers \
     "$MICROCODE" networkmanager grub efibootmgr os-prober \
-    git base-devel sudo zsh pciutils >> "$LOG_FILE" 2>&1
+    git base-devel sudo zsh pciutils 2>&1 | tee -a "$LOG_FILE"
 success "Sistema base instalado."
 
 # ============================================================
@@ -593,7 +598,7 @@ arch-chroot /mnt hwclock --systohc
 LOCALE_PREFIX="${INSTALL_LOCALE%%.*}"  # ex: pt_BR
 sed -i 's/^#en_US.UTF-8/en_US.UTF-8/' /mnt/etc/locale.gen
 sed -i "s/^#${LOCALE_PREFIX}/${LOCALE_PREFIX}/" /mnt/etc/locale.gen
-arch-chroot /mnt locale-gen >> "$LOG_FILE" 2>&1
+arch-chroot /mnt locale-gen 2>&1 | tee -a "$LOG_FILE"
 echo "LANG=$INSTALL_LOCALE" > /mnt/etc/locale.conf
 echo "KEYMAP=$INSTALL_KEYMAP" > /mnt/etc/vconsole.conf
 
@@ -619,7 +624,7 @@ sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /mnt/etc/sudoer
 
 # Habilitar serviços (apenas os que foram instalados no pacstrap)
 # Nota: bluetooth (bluez) será habilitado pelo install.sh quando for instalado
-arch-chroot /mnt systemctl enable NetworkManager >> "$LOG_FILE" 2>&1
+arch-chroot /mnt systemctl enable NetworkManager 2>&1 | tee -a "$LOG_FILE"
 
 success "Sistema configurado."
 
@@ -628,9 +633,9 @@ success "Sistema configurado."
 info "Instalando GRUB..."
 
 if [ "$BOOT_MODE" = "uefi" ]; then
-    arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB >> "$LOG_FILE" 2>&1
+    arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB 2>&1 | tee -a "$LOG_FILE"
 else
-    arch-chroot /mnt grub-install --target=i386-pc "$TARGET_DISK" >> "$LOG_FILE" 2>&1
+    arch-chroot /mnt grub-install --target=i386-pc "$TARGET_DISK" 2>&1 | tee -a "$LOG_FILE"
 fi
 
 # Habilitar os-prober (descomentar se existir, adicionar se não existir)
@@ -640,7 +645,7 @@ else
     echo "GRUB_DISABLE_OS_PROBER=false" >> /mnt/etc/default/grub
 fi
 
-arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg >> "$LOG_FILE" 2>&1
+arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg 2>&1 | tee -a "$LOG_FILE"
 success "GRUB instalado e configurado."
 
 # ── Dotfiles + install.sh ──
@@ -658,7 +663,7 @@ if [ -d /opt/dotfiles ]; then
 
     # Executar install.sh como o usuário (não como root)
     info "Executando install.sh (pós-instalação)..."
-    arch-chroot /mnt runuser -u "$INSTALL_USER" -- /home/"$INSTALL_USER"/dotfiles/install.sh >> "$LOG_FILE" 2>&1 || {
+    arch-chroot /mnt runuser -u "$INSTALL_USER" -- /home/"$INSTALL_USER"/dotfiles/install.sh 2>&1 | tee -a "$LOG_FILE" || {
         warn "install.sh retornou erro. Verifique o log: $LOG_FILE"
         warn "Você pode rodar manualmente após o reboot: cd ~/dotfiles && ./install.sh"
     }
