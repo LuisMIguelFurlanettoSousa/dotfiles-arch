@@ -1,5 +1,5 @@
 <h1 align="center">Hyprland Dotfiles</h1>
-<p align="center"><strong>Arch Linux + Hyprland configurado em um comando. Clone, instale, reboot.</strong></p>
+<p align="center"><strong>Arch Linux + Hyprland do zero. ISO bootável ou instalação em um comando.</strong></p>
 
 <p align="center">
   <a href="https://archlinux.org"><img src="https://img.shields.io/badge/Arch_Linux-1793D1?style=flat&logo=arch-linux&logoColor=white" alt="Arch Linux"></a>
@@ -15,7 +15,73 @@
 
 ---
 
-## Quick Start
+## Instalação
+
+Duas formas de usar este projeto:
+
+### Opção A: ISO Bootável (recomendado para quem NÃO tem Arch instalado)
+
+Crie uma ISO customizada com Arch Linux + Hyprland pré-configurado. Boota pelo pendrive, testa o Hyprland ao vivo, e instala no disco com um comando.
+
+**Pré-requisitos:** Docker instalado (qualquer distro Linux) ou Arch Linux com `archiso`.
+
+```bash
+# 1. Clonar o repositório
+git clone https://github.com/LuisMIguelFurlanettoSousa/dotfiles
+cd dotfiles
+
+# 2. Buildar a ISO (~10-30 min, baixa ~1.8GB de pacotes)
+cd archiso
+sudo ./build.sh
+
+# 3. Gravar no pendrive (substitua /dev/sdX pelo seu USB)
+# Use 'lsblk' para identificar o dispositivo correto
+sudo dd bs=4M if=/root/iso-out/archlinux-hyprland-*.iso of=/dev/sdX conv=fsync oflag=direct status=progress
+
+# 4. Bootar pelo pendrive e seguir o menu interativo
+```
+
+> **Importante:** O comando `dd` apaga tudo no pendrive. Certifique-se de selecionar o dispositivo correto.
+
+<details>
+<summary><strong>O que acontece ao bootar o pendrive</strong></summary>
+
+```
+╔══════════════════════════════════════════════╗
+║     Arch Linux + Hyprland — Live USB         ║
+║                                              ║
+║  [1] Iniciar Hyprland (test drive)           ║
+║  [2] Instalar no disco                       ║
+║  [3] Shell                                   ║
+╚══════════════════════════════════════════════╝
+```
+
+- **Opção 1** — Testa o Hyprland ao vivo sem instalar nada. Ideal para ver se tudo funciona no seu hardware.
+- **Opção 2** — Instalação guiada: particiona o disco (automático ou manual), instala o Arch + Hyprland + dotfiles. Suporta dual-boot com Windows.
+- **Opção 3** — Shell para uso manual.
+
+**Wi-Fi:** Se não tiver cabo ethernet, o instalador lista as redes Wi-Fi disponíveis e pede a senha.
+
+**Dual-boot:** O GRUB com `os-prober` detecta Windows automaticamente. Na partição EFI, o instalador pergunta se quer formatar ou manter (preservando o boot do Windows).
+
+</details>
+
+<details>
+<summary><strong>Layout de partições recomendado para dual-boot</strong></summary>
+
+Se você tem Windows e quer instalar o Arch ao lado:
+
+| Partição | Uso | Formatar? |
+|----------|-----|-----------|
+| EFI existente (ex: 260M) | Compartilhada com Windows | **NÃO** |
+| Partição livre (ex: 40G+) | Root do Arch (/) | Sim (ext4) |
+| Partição livre (ex: 4G+) | Swap | Sim |
+
+Na opção 2 do instalador, escolha "Particionar manualmente" e selecione as partições corretas.
+
+</details>
+
+### Opção B: Apenas dotfiles (para quem JÁ tem Arch instalado)
 
 ```bash
 sudo pacman -S git
@@ -102,8 +168,17 @@ sudo reboot
 
 ```
 dotfiles/
-├── install.sh              # Script de instalação automatizada
+├── install.sh              # Script de pós-instalação (dotfiles + pacotes)
 ├── .stowrc                 # Config do stow (target = ~)
+├── archiso/                # ISO bootável customizada
+│   ├── build.sh            # Buildar ISO (Docker ou Arch nativo)
+│   ├── build-native.sh     # Build interno (chamado pelo build.sh)
+│   ├── packages.x86_64     # Pacotes extras da ISO
+│   └── airootfs/           # Sistema de arquivos da ISO live
+│       └── usr/local/bin/
+│           ├── menu-live          # Menu interativo no boot
+│           ├── instalar-sistema   # Wrapper do instalador
+│           └── full-install.sh    # Instalação completa do Arch
 ├── hypr/                   # Hyprland, Hyprlock, scripts
 ├── waybar/                 # Barra de status + scripts
 ├── wofi/                   # Launcher config + estilo
@@ -130,6 +205,38 @@ mkdir -p nova-app/.config/nova-app
 # edite os arquivos...
 stow nova-app
 ```
+
+## FAQ
+
+<details>
+<summary><strong>Preciso estar no Arch Linux para buildar a ISO?</strong></summary>
+
+Não. O `build.sh` detecta o sistema automaticamente. No Ubuntu, Fedora ou qualquer outra distro, ele usa Docker para buildar. Só precisa ter Docker instalado (`sudo apt install docker.io` no Ubuntu).
+</details>
+
+<details>
+<summary><strong>Posso fazer dual-boot com Windows?</strong></summary>
+
+Sim. Na instalação, escolha "Particionar manualmente" e selecione uma partição livre para o Arch. Quando perguntado sobre a EFI, responda "N" para não formatar (preserva o boot do Windows). O GRUB detecta o Windows automaticamente.
+</details>
+
+<details>
+<summary><strong>E se eu tiver NVIDIA?</strong></summary>
+
+O `install.sh` detecta a GPU automaticamente e instala os drivers corretos (`nvidia-dkms`). A ISO live inclui drivers NVIDIA, AMD e Intel para funcionar em qualquer hardware.
+</details>
+
+<details>
+<summary><strong>Funciona sem internet?</strong></summary>
+
+A ISO boota sem internet (opção 1 — test drive funciona offline). Mas a instalação no disco (opção 2) precisa de internet para baixar pacotes. O instalador oferece conexão Wi-Fi com listagem de redes se não tiver cabo ethernet.
+</details>
+
+<details>
+<summary><strong>Posso rodar o install.sh sem a ISO?</strong></summary>
+
+Sim. Se você já tem Arch Linux instalado, clone o repo e rode `./install.sh` direto. A ISO é apenas para quem quer instalar o Arch do zero.
+</details>
 
 ## Contributing
 
