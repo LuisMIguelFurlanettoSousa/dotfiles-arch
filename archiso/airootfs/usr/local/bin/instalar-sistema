@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# ============================================================
+# Wrapper amigável para o full-install.sh
+# ============================================================
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+clear
+echo ""
+echo -e "${CYAN}╔══════════════════════════════════════════════╗${NC}"
+echo -e "${CYAN}║                                              ║${NC}"
+echo -e "${CYAN}║  ${BOLD}Arch Linux + Hyprland${NC}${CYAN} — Instalador          ║${NC}"
+echo -e "${CYAN}║                                              ║${NC}"
+echo -e "${CYAN}╠══════════════════════════════════════════════╣${NC}"
+echo -e "${CYAN}║                                              ║${NC}"
+echo -e "${CYAN}║  Este instalador vai:                        ║${NC}"
+echo -e "${CYAN}║                                              ║${NC}"
+echo -e "${CYAN}║  ${GREEN}1.${NC} Particionar e formatar o disco           ${CYAN}║${NC}"
+echo -e "${CYAN}║  ${GREEN}2.${NC} Instalar o Arch Linux base               ${CYAN}║${NC}"
+echo -e "${CYAN}║  ${GREEN}3.${NC} Configurar GRUB, usuário e rede          ${CYAN}║${NC}"
+echo -e "${CYAN}║  ${GREEN}4.${NC} Aplicar Hyprland + dotfiles + tema       ${CYAN}║${NC}"
+echo -e "${CYAN}║                                              ║${NC}"
+echo -e "${CYAN}╚══════════════════════════════════════════════╝${NC}"
+echo ""
+echo -e "${YELLOW}ATENÇÃO: Isso vai modificar o disco selecionado.${NC}"
+echo -e "${YELLOW}Certifique-se de ter backup dos seus dados.${NC}"
+echo ""
+read -rp "$(echo -e "${BOLD}Continuar com a instalação? [s/N]:${NC} ")" resp
+
+if [[ "$resp" =~ ^[sS]$ ]]; then
+    exec /usr/local/bin/full-install.sh
+else
+    echo -e "${RED}Instalação cancelada.${NC}"
+    echo ""
+    echo -e "Digite ${BOLD}menu-live${NC} para voltar ao menu."
+    exit 0
+fi
