@@ -138,23 +138,33 @@ if ! curl -sf --max-time 10 "https://archlinux.org" > /dev/null 2>&1; then
                 fi
             fi
 
-            # Pedir senha
-            echo ""
-            read -rsp "$(echo -e "${BOLD}Senha do Wi-Fi ($WIFI_SSID):${NC} ")" WIFI_PASS
-            echo ""
+            # Pedir senha com 3 tentativas
+            WIFI_TENTATIVAS=3
+            WIFI_CONECTADO=false
 
-            # Conectar
-            info "Conectando a '$WIFI_SSID'..."
-            iwctl --passphrase "$WIFI_PASS" station "$WIFI_DEV" connect "$WIFI_SSID" 2>/dev/null
+            for tentativa in $(seq 1 $WIFI_TENTATIVAS); do
+                echo ""
+                read -rsp "$(echo -e "${BOLD}Senha do Wi-Fi ($WIFI_SSID) [tentativa $tentativa/$WIFI_TENTATIVAS]:${NC} ")" WIFI_PASS
+                echo ""
 
-            # Aguardar conexão
-            sleep 5
+                info "Conectando a '$WIFI_SSID'..."
+                iwctl --passphrase "$WIFI_PASS" station "$WIFI_DEV" connect "$WIFI_SSID" 2>/dev/null
 
-            # Verificar
-            if curl -sf --max-time 10 "https://archlinux.org" > /dev/null 2>&1; then
-                success "Conectado ao Wi-Fi '$WIFI_SSID'."
-            else
-                error "Falha ao conectar ao Wi-Fi. Verifique o nome da rede e a senha."
+                sleep 5
+
+                if curl -sf --max-time 10 "https://archlinux.org" > /dev/null 2>&1; then
+                    success "Conectado ao Wi-Fi '$WIFI_SSID'."
+                    WIFI_CONECTADO=true
+                    break
+                else
+                    if [ "$tentativa" -lt "$WIFI_TENTATIVAS" ]; then
+                        warn "Falha ao conectar. Verifique a senha e tente novamente."
+                    fi
+                fi
+            done
+
+            if [ "$WIFI_CONECTADO" = false ]; then
+                error "Falha ao conectar ao Wi-Fi após $WIFI_TENTATIVAS tentativas."
             fi
             ;;
         2)
