@@ -11,3 +11,8 @@ zsh/.zcompdump*
 
 # Log de instalação
 install.log
+
+# Archiso build artifacts
+iso-out/
+*.iso
+*.sha256
