@@ -201,3 +201,4 @@ kernel_version=$(uname -r 2> /dev/null)
 print -P "${GREETING_PROMPT} zsh ${ZSH_VERSION} | ${kernel_version}"
 
 zsh_refresh_prompt
+export PATH="$HOME/.local/bin:$PATH"

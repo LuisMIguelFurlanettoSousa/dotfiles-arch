@@ -1,0 +1,119 @@
+@theme "/dev/null"
+@import "colors.rasi"
+
+configuration {
+    font: "JetBrainsMono Nerd Font 10";
+    show-icons: true;
+}
+
+window {
+    transparency:      "real";
+    location:          center;
+    anchor:            center;
+    fullscreen:        false;
+    width:             500px;
+    height:            500px;
+    border:            2px solid;
+    border-color:      @outline-variant;
+    border-radius:     15px;
+    background-color:  @surface;
+}
+
+mainbox {
+    enabled:           true;
+    spacing:           0px;
+    background-color:  transparent;
+    orientation:       horizontal;
+    children:          [ "imagebox", "listbox" ];
+}
+
+imagebox {
+    padding:           15px;
+    background-color:  transparent;
+    background-image:  url("~/.config/hypr/current_wallpaper", height);
+    orientation:       vertical;
+    children:          [ "dummy" ];
+}
+
+dummy {
+    background-color:  transparent;
+}
+
+listbox {
+    spacing:           10px;
+    padding:           12px;
+    background-color:  transparent;
+    orientation:       vertical;
+    children:          [ "inputbar", "listview" ];
+}
+
+inputbar {
+    enabled:           true;
+    spacing:           10px;
+    padding:           12px;
+    border-radius:     10px;
+    background-color:  @surface-container;
+    text-color:        @on-surface;
+    children:          [ "textbox-prompt-colon", "entry" ];
+}
+
+textbox-prompt-colon {
+    enabled:           true;
+    expand:            false;
+    str:               " ";
+    background-color:  inherit;
+    text-color:        inherit;
+}
+
+entry {
+    enabled:           true;
+    background-color:  inherit;
+    text-color:        inherit;
+    cursor:            text;
+    placeholder:       "Buscar wallpaper...";
+    placeholder-color: @outline;
+}
+
+listview {
+    enabled:           true;
+    columns:           1;
+    lines:             8;
+    cycle:             true;
+    dynamic:           true;
+    scrollbar:         false;
+    layout:            vertical;
+    fixed-height:      true;
+    spacing:           5px;
+    background-color:  transparent;
+    text-color:        @on-surface;
+}
+
+element {
+    enabled:           true;
+    spacing:           10px;
+    padding:           6px;
+    border-radius:     8px;
+    background-color:  transparent;
+    text-color:        @on-surface;
+    cursor:            pointer;
+}
+
+element selected.normal {
+    background-color:  @primary-container;
+    text-color:        @on-primary-container;
+}
+
+element-icon {
+    background-color:  transparent;
+    size:              36px;
+    cursor:            inherit;
+    border-radius:     4px;
+}
+
+element-text {
+    background-color:  transparent;
+    text-color:        inherit;
+    cursor:            inherit;
+    vertical-align:    0.5;
+    horizontal-align:  0.0;
+}
