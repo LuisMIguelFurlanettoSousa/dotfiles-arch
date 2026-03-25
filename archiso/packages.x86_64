@@ -11,9 +11,10 @@ hyprlock
 xdg-desktop-portal-hyprland
 hyprsunset
 
-# Barra, menu
+# Barra, menu e seletor
 waybar
 wofi
+rofi
 # wlogout — AUR, instalado depois pelo install.sh via yay
 
 # Terminal (para o live — ghostty é AUR, instalado depois pelo install.sh)

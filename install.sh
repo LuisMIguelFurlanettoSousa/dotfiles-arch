@@ -351,9 +351,10 @@ PACMAN_PKGS=(
     hyprland
     hyprlock
     xdg-desktop-portal-hyprland
-    # Barra e menu
+    # Barra, menu e seletor
     waybar
     wofi
+    rofi
     # Utilitários Wayland
     grim
     slurp
