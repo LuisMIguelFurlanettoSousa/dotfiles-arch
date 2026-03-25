@@ -11,7 +11,7 @@ window {
     location:          center;
     anchor:            center;
     fullscreen:        false;
-    width:             500px;
+    width:             400px;
     height:            500px;
     border:            2px solid;
     border-color:      @outline-variant;
@@ -21,25 +21,6 @@ window {
 
 mainbox {
     enabled:           true;
-    spacing:           0px;
-    background-color:  transparent;
-    orientation:       horizontal;
-    children:          [ "imagebox", "listbox" ];
-}
-
-imagebox {
-    padding:           15px;
-    background-color:  transparent;
-    background-image:  url("~/.config/hypr/current_wallpaper", height);
-    orientation:       vertical;
-    children:          [ "dummy" ];
-}
-
-dummy {
-    background-color:  transparent;
-}
-
-listbox {
     spacing:           10px;
     padding:           12px;
     background-color:  transparent;
