@@ -626,7 +626,10 @@ success "Sistema configurado."
 info "Instalando GRUB..."
 
 if [ "$BOOT_MODE" = "uefi" ]; then
-    arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB 2>&1 | tee -a "$LOG_FILE" || error "Falha ao instalar GRUB."
+    # --removable instala em /EFI/BOOT/BOOTx64.EFI (fallback UEFI universal)
+    # Necessário porque dentro do chroot o efivarfs pode não ser gravável,
+    # impedindo o grub-install de criar entrada na NVRAM da UEFI
+    arch-chroot /mnt grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB --removable 2>&1 | tee -a "$LOG_FILE" || error "Falha ao instalar GRUB."
 else
     arch-chroot /mnt grub-install --target=i386-pc "$TARGET_DISK" 2>&1 | tee -a "$LOG_FILE" || error "Falha ao instalar GRUB."
 fi
