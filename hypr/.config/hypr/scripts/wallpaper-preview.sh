@@ -1,12 +1,19 @@
 #!/bin/bash
-# Preview de wallpaper para o rofi
-# Recebe o nome do arquivo e gera preview com chafa (terminal image viewer)
+# Atualiza o preview do swayimg quando a seleção muda no Rofi
+# Recebe o nome do wallpaper selecionado e envia SIGUSR1 ao swayimg
 
 WALLPAPER_DIR="$HOME/Pictures/wallpapers/walls"
+PREVIEW_LINK="/tmp/wallpaper-picker-preview"
 FILE="$1"
 
-if [ -f "$WALLPAPER_DIR/$FILE" ]; then
-    chafa --size=40x20 --animate=off "$WALLPAPER_DIR/$FILE" 2>/dev/null
-elif [ -f "$FILE" ]; then
-    chafa --size=40x20 --animate=off "$FILE" 2>/dev/null
-fi
+[ -z "$FILE" ] && exit 0
+
+FULL_PATH="$WALLPAPER_DIR/$FILE"
+
+[ ! -f "$FULL_PATH" ] && exit 1
+
+# Atualiza o symlink temporário para o wallpaper selecionado
+ln -sf "$FULL_PATH" "$PREVIEW_LINK"
+
+# Envia SIGUSR1 ao swayimg para recarregar a imagem
+pkill -USR1 -f "swayimg.*swayimg-picker"
