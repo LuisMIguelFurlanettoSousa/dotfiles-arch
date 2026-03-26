@@ -376,6 +376,8 @@ PACMAN_PKGS=(
     wireplumber
     pipewire-pulse
     pavucontrol
+    playerctl
+    pamixer
     # Bluetooth
     bluez
     bluez-utils
@@ -394,6 +396,9 @@ PACMAN_PKGS=(
     zoxide
     tree
     jq
+    curl
+    # Multiplexador de terminal
+    tmux
     # Arquivos compactados
     unzip
     unrar
@@ -406,6 +411,8 @@ PACMAN_PKGS=(
     polkit-gnome
     reflector
     github-cli
+    # Notificações (notify-send)
+    libnotify
     # Editor
     neovim
     # Terminal
@@ -414,6 +421,9 @@ PACMAN_PKGS=(
     hyprsunset
     # OSD
     swayosd
+    # Monitores de sistema (waybar on-click)
+    btop
+    nvtop
     # Debug Wayland
     wev
     # GTK theme e ícones
@@ -499,6 +509,8 @@ STOW_PACKAGES=(
     gtk-3.0
     nvim
     vscode
+    tmux
+    git
 )
 
 # Backup e remoção de configs conflitantes
@@ -524,6 +536,12 @@ fi
 if [ -f "$HOME/.tmux.conf" ] && [ ! -L "$HOME/.tmux.conf" ]; then
     backup_if_exists "$HOME/.tmux.conf"
     rm -f "$HOME/.tmux.conf"
+fi
+
+# Backup e remover .gitconfig existente
+if [ -f "$HOME/.gitconfig" ] && [ ! -L "$HOME/.gitconfig" ]; then
+    backup_if_exists "$HOME/.gitconfig"
+    rm -f "$HOME/.gitconfig"
 fi
 
 # Aplicar stow com tratamento de erro por pacote
@@ -581,7 +599,21 @@ else
 fi
 
 # ============================================================
-# 10. Criar diretórios necessários
+# 10. Instalar Tmux Plugin Manager (TPM)
+# ============================================================
+
+TPM_DIR="$HOME/.tmux/plugins/tpm"
+
+if [ -d "$TPM_DIR" ]; then
+    success "TPM já está instalado."
+else
+    info "Instalando Tmux Plugin Manager (TPM)..."
+    git clone https://github.com/tmux-plugins/tpm "$TPM_DIR" >> "$LOG_FILE" 2>&1
+    success "TPM instalado. Após o reboot, abra o tmux e pressione prefix + I para instalar os plugins."
+fi
+
+# ============================================================
+# 11. Criar diretórios necessários
 # ============================================================
 
 info "Criando diretórios..."
@@ -590,7 +622,7 @@ mkdir -p ~/Pictures/wallpapers/walls
 success "Diretórios criados."
 
 # ============================================================
-# 11. Copiar wallpaper padrão
+# 12. Copiar wallpaper padrão
 # ============================================================
 
 if [ -f "$DOTFILES_DIR/wallpapers/default.jpg" ]; then
@@ -601,7 +633,7 @@ else
 fi
 
 # ============================================================
-# 12. Habilitar serviços
+# 13. Habilitar serviços
 # ============================================================
 
 info "Habilitando serviços..."
@@ -636,12 +668,12 @@ else
 fi
 
 # ============================================================
-# 13. Validação pós-instalação
+# 14. Validação pós-instalação
 # ============================================================
 
 info "Validando instalação..."
 
-CRITICAL_PKGS=(hyprland waybar wofi kitty zsh stow)
+CRITICAL_PKGS=(hyprland waybar wofi kitty zsh stow tmux playerctl)
 VALIDATION_FAILED=()
 
 for pkg in "${CRITICAL_PKGS[@]}"; do
@@ -659,6 +691,8 @@ CRITICAL_CONFIGS=(
     "$HOME/.config/waybar/config.jsonc"
     "$HOME/.config/wofi/config"
     "$HOME/.zshrc"
+    "$HOME/.tmux.conf"
+    "$HOME/.gitconfig"
 )
 
 for cfg in "${CRITICAL_CONFIGS[@]}"; do
