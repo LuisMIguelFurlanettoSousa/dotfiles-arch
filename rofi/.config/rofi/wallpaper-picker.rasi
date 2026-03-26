@@ -11,8 +11,8 @@ window {
     location:          center;
     anchor:            center;
     fullscreen:        false;
-    width:             400px;
-    height:            500px;
+    width:             500px;
+    height:            600px;
     border:            2px solid;
     border-color:      @outline-variant;
     border-radius:     15px;
@@ -58,21 +58,21 @@ entry {
 listview {
     enabled:           true;
     columns:           1;
-    lines:             8;
+    lines:             5;
     cycle:             true;
     dynamic:           true;
     scrollbar:         false;
     layout:            vertical;
     fixed-height:      true;
-    spacing:           5px;
+    spacing:           8px;
     background-color:  transparent;
     text-color:        @on-surface;
 }
 
 element {
     enabled:           true;
-    spacing:           10px;
-    padding:           6px;
+    spacing:           15px;
+    padding:           8px;
     border-radius:     8px;
     background-color:  transparent;
     text-color:        @on-surface;
@@ -86,9 +86,9 @@ element selected.normal {
 
 element-icon {
     background-color:  transparent;
-    size:              36px;
+    size:              120px;
     cursor:            inherit;
-    border-radius:     4px;
+    border-radius:     6px;
 }
 
 element-text {
