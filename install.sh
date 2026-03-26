@@ -326,7 +326,7 @@ if echo "$GPU_INFO" | grep -qi nvidia; then
     GPU_TYPE="nvidia"
     info "GPU NVIDIA detectada."
     retry "Instalar drivers NVIDIA" sudo pacman -S --needed --noconfirm \
-        nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings
+        nvidia-open-dkms nvidia-utils lib32-nvidia-utils nvidia-settings
 elif echo "$GPU_INFO" | grep -qi 'amd\|radeon'; then
     GPU_TYPE="amd"
     info "GPU AMD detectada."
@@ -363,6 +363,11 @@ PACMAN_PKGS=(
     slurp
     wl-clipboard
     swww
+    awww
+    # Visualizadores de imagem
+    imv
+    swayimg
+    chafa
     # Aparência
     qt6ct
     noto-fonts-emoji
@@ -378,8 +383,10 @@ PACMAN_PKGS=(
     # Rede
     networkmanager
     nm-connection-editor
+    network-manager-applet
     # Gerenciador de arquivos
     nemo
+    file-roller
     # Shell e ferramentas
     zsh
     eza
@@ -387,15 +394,28 @@ PACMAN_PKGS=(
     zoxide
     tree
     jq
+    # Arquivos compactados
+    unzip
+    unrar
+    zip
+    7zip
     # Sistema
     stow
     git
     base-devel
     polkit-gnome
+    reflector
+    github-cli
     # Editor
     neovim
+    # Terminal
+    kitty
     # Night mode
     hyprsunset
+    # OSD
+    swayosd
+    # Debug Wayland
+    wev
     # GTK theme e ícones
     materia-gtk-theme
     papirus-icon-theme
@@ -414,6 +434,7 @@ AUR_PKGS=(
     bibata-cursor-theme
     ttf-jetbrains-mono-nerd
     wlogout
+    networkmanager-dmenu-git
 )
 
 # AUR: instalar um por um com fallback (se um falhar, os outros continuam)
@@ -471,6 +492,8 @@ STOW_PACKAGES=(
     wofi
     wlogout
     ghostty
+    kitty
+    rofi
     swaync
     zsh
     gtk-3.0
@@ -618,7 +641,7 @@ fi
 
 info "Validando instalação..."
 
-CRITICAL_PKGS=(hyprland waybar wofi ghostty zsh stow)
+CRITICAL_PKGS=(hyprland waybar wofi kitty zsh stow)
 VALIDATION_FAILED=()
 
 for pkg in "${CRITICAL_PKGS[@]}"; do
