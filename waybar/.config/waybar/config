@@ -38,6 +38,7 @@
         //"custom/separator#dot-line",
         "group/notify",	
 	"battery",
+	"network",
 	"custom/separator#blank",  
 	"backlight",
 	"custom/separator#blank",

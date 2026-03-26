@@ -22,13 +22,17 @@ window#waybar.empty #window {
 }
 
 tooltip {
-	color: @inverse_surface;
-    background: rgba(0, 0, 0, 0.8);
-    border-radius: 20px;
+    background: @surface_container_lowest;
+    border: 2px solid @primary;
+    border-radius: 16px;
+    padding: 8px;
 }
 
-tooltip label{
-	color: @inverse_surface;
+tooltip label {
+    color: @on_background;
+    font-family: "JetBrainsMono Nerd Font Mono";
+    font-size: 13px;
+    padding: 4px;
 }
 /*-----module groups----*/
 .modules-right {
@@ -190,6 +194,14 @@ tooltip label{
 
 #battery.critical:not(.charging) {
 	color: #f53c3c;
+}
+
+#network.disconnected {
+	color: @error;
+}
+
+#network.wifi {
+	color: @primary;
 }
 
 #backlight-slider slider,
