@@ -37,8 +37,11 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# Pequena pausa para o swayimg abrir antes do Rofi
-sleep 0.2
+# Aguarda o swayimg abrir antes do Rofi
+for _ in $(seq 1 20); do
+    pgrep -f "swayimg.*swayimg-picker" > /dev/null && break
+    sleep 0.05
+done
 
 IFS=$'\n'
 
@@ -47,7 +50,7 @@ SELECTED_WALL=$(for a in "${WALLPAPERS[@]}"; do
     echo -en "$a\0icon\x1f$WALLPAPER_DIR/$a\n"
 done | rofi -dmenu -p "" \
     -theme ~/.config/rofi/wallpaper-picker.rasi \
-    -on-selection-changed "$PREVIEW_SCRIPT {}")
+    -on-selection-changed "$PREVIEW_SCRIPT {entry}")
 
 [ -z "$SELECTED_WALL" ] && exit 0
 
