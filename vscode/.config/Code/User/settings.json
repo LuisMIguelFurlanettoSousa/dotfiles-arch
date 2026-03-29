@@ -1,154 +1,103 @@
 {
-  // * editor settings *
-  "diffEditor.codeLens": true,
-  "diffEditor.ignoreTrimWhitespace": true,
-  "editor.codeActionsOnSave": {},
-  "editor.cursorBlinking": "expand",
-  "editor.cursorSmoothCaretAnimation": "off", // "on" | "off"
-  "editor.cursorStyle": "line",
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.detectIndentation": false,
-  "editor.fontFamily": "Jetbrains Mono",
-  "editor.fontLigatures": true,
-  "editor.formatOnSave": true,
-  "editor.lineNumbers": "on",
-  "editor.minimap.enabled": false,
-  "editor.quickSuggestions": {
-    "strings": true
-  },
-  "editor.smoothScrolling": true,
-  "editor.stickyScroll.enabled": false,
-  "editor.tabSize": 2,
-  "editor.unicodeHighlight.invisibleCharacters": false,
-  "editor.wordWrapColumn": 500,
-  "window.titleBarStyle": "custom",
+  "window.zoomLevel": 2,
+  "workbench.colorTheme": "GitHub Dark Default",
+  "workbench.iconTheme": "catppuccin-latte",
+  "workbench.colorCustomizations": {
+    "[GitHub Dark Default]": {
+      // Terminal
+      "terminal.background": "#010409",
+      "terminal.foreground": "#e6edf3",
+      "terminalCursor.foreground": "#e6edf3",
+      "terminal.selectionBackground": "#3b5070",
+      "terminal.ansiBlack": "#484f58",
+      "terminal.ansiRed": "#ff7b72",
+      "terminal.ansiGreen": "#3fb950",
+      "terminal.ansiYellow": "#d29922",
+      "terminal.ansiBlue": "#58a6ff",
+      "terminal.ansiMagenta": "#bc8cff",
+      "terminal.ansiCyan": "#39c5cf",
+      "terminal.ansiWhite": "#b1bac4",
+      "terminal.ansiBrightBlack": "#6e7681",
+      "terminal.ansiBrightRed": "#ffa198",
+      "terminal.ansiBrightGreen": "#56d364",
+      "terminal.ansiBrightYellow": "#e3b341",
+      "terminal.ansiBrightBlue": "#79c0ff",
+      "terminal.ansiBrightMagenta": "#d2a8ff",
+      "terminal.ansiBrightCyan": "#56d4dd",
+      "terminal.ansiBrightWhite": "#ffffff",
 
-  // * language formatter settings *
-  "[html]": {
-    "editor.defaultFormatter": "vscode.html-language-features"
-  },
-  "[java]": {
-    "editor.defaultFormatter": "mwpb.java-prettier-formatter"
-  },
-  "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[javascriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[prisma]": {
-    "editor.defaultFormatter": "Prisma.prisma",
-    "editor.formatOnSave": true
-  },
-  "[rust]": {
-    "editor.defaultFormatter": "rust-lang.rust-analyzer"
-  },
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
+      // Popup de sugestões (cores do Oscura Dusk)
+      "editorSuggestWidget.background": "#161616",
+      "editorSuggestWidget.border": "#282828",
+      "editorSuggestWidget.foreground": "#E6E6E6",
+      "editorSuggestWidget.highlightForeground": "#FFF",
+      "editorSuggestWidget.selectedBackground": "#232323",
+      "editorSuggestWidget.selectedForeground": "#E6E6E6",
 
-  // * explorer and workbench settings *
-  "explorer.compactFolders": false,
-  "explorer.confirmDelete": false,
-  "explorer.confirmDragAndDrop": false,
-  "files.exclude": {
-    "**/*.meta": true
-  },
-  "workbench.colorTheme": "Darker Modern Tweaked",
-  "workbench.iconTheme": "material-icon-theme",
-  "workbench.list.smoothScrolling": true,
-  "workbench.secondarySideBar.defaultVisibility": "visible",
-  "workbench.sideBar.location": "right",
-  "workbench.startupEditor": "none",
-  "workbench.statusBar.visible": false,
+      // Hover tooltip (cores do Oscura Dusk)
+      "editorHoverWidget.background": "#161616",
+      "editorHoverWidget.border": "#282828",
+      "editorHoverWidget.foreground": "#E6E6E6",
 
-  // * formatter settings *
-  "prettier.arrowParens": "always",
-  "prettier.bracketSameLine": true,
-  "prettier.printWidth": 100,
-  "prettier.proseWrap": "never",
-  "prettier.trailingComma": "none",
-  "prettier.useEditorConfig": false,
+      // Lista de seleção no popup
+      "list.activeSelectionBackground": "#232323",
+      "list.activeSelectionForeground": "#E6E6E6",
+      "list.hoverBackground": "#FFFFFF08",
+      "list.highlightForeground": "#FFF",
 
-  // * terminal settings *
-  "terminal.integrated.defaultProfile.windows": "fish",
-  "terminal.integrated.fontFamily": "Jetbrains Mono, DejaVu Math TeX Gyre",
-  "terminal.integrated.gpuAcceleration": "off",
-  "terminal.integrated.smoothScrolling": false,
-
-  // * vim settings *
-  "vim.leader": "<space>",
-  "vim.insertModeKeyBindings": [
-    {
-      // vim quick normal mode
-      "before": ["k", "j"],
-      "after": ["<Esc>"]
+      // Git gutter
+      "editorGutter.modifiedBackground": "#FFA500",
     },
-    {
-      // search files
-      "before": ["<C-p>"],
-      "commands": ["workbench.action.quickOpen"]
-    }
-  ],
-  "vim.normalModeKeyBindingsNonRecursive": [
-    {
-      // vim move lines
-      "before": ["J"],
-      "commands": ["editor.action.moveLinesDownAction"]
-    },
-    {
-      // vim move lines
-      "before": ["K"],
-      "commands": ["editor.action.moveLinesUpAction"]
-    },
-    {
-      // search files
-      "before": ["<C-p>"],
-      "commands": ["workbench.action.quickOpen"]
-    },
-    {
-      // search files (with leader)
-      "before": ["<leader>", "<leader>"],
-      "commands": ["workbench.action.quickOpen"]
-    },
-    {
-      // toggle sidebar
-      "before": ["<leader>", "b"],
-      "commands": ["workbench.action.toggleSidebarVisibility"]
-    },
-    // leap plugin find word globally
-    {
-      "before": ["<leader>", "s"],
-      "commands": ["leap.find"]
-    }
-  ],
-  "vim.useSystemClipboard": true,
-  "vim.visualModeKeyBindings": [],
-
-  // * screencast settings *
-  "screencastMode.fontSize": 48,
-  "screencastMode.mouseIndicatorColor": "#00000000",
-
-  // * miscellaneous settings *
-  "cmake.configureOnOpen": false,
-  "cmake.showOptionsMovedNotification": false,
-  "git.autofetch": true,
+  },
+  "gitlens.ai.model": "gitkraken",
+  "gitlens.ai.gitkraken.model": "gemini:gemini-2.5-flash",
+  "diffEditor.ignoreTrimWhitespace": false,
+  "redhat.telemetry.enabled": true,
+  "settingsSync.ignoredExtensions": [],
   "git.confirmSync": false,
-  "git.enableSmartCommit": true,
-  "git.ignoreRebaseWarning": true,
-  "go.toolsManagement.autoUpdate": true,
-  "html.format.contentUnformatted": "",
-  "javascript.updateImportsOnFileMove.enabled": "never",
-  "liveServer.settings.donotShowInfoMsg": true,
-  "liveServer.settings.donotVerifyTags": true,
-  "makefile.configureOnOpen": true,
-  "npm.keybindingsChangedWarningShown": true,
-  "prisma.showPrismaDataPlatformNotification": false,
-  "redhat.telemetry.enabled": false,
-  "settingsSync.ignoredSettings": [],
-  "svg.preview.mode": "img",
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+
+  // Fonte e cursor
+  "editor.fontFamily": "'JetBrains Mono NL', 'Droid Sans Mono', 'monospace'",
+  "editor.fontSize": 14,
+  "editor.fontWeight": "400",
+  "editor.lineHeight": 1.6,
+  "editor.cursorBlinking": "smooth",
+  "editor.cursorWidth": 3,
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+  "editor.cursorSmoothCaretAnimation": "on",
+  "editor.smoothScrolling": true,
+  "workbench.list.smoothScrolling": true,
+
+  // Fonte do terminal
+  "terminal.integrated.fontFamily": "JetBrains Mono NL",
+  "terminal.integrated.fontSize": 14,
+  "terminal.integrated.fontWeight": "400",
+  "terminal.integrated.cursorStyle": "underline",
+
+  // UI
+  "editor.minimap.enabled": true,
+  "claudeCode.preferredLocation": "panel",
+  "editor.minimap.renderCharacters": false,
+
+  // Sugestões
+  "editor.suggestSelection": "first",
+  "editor.parameterHints.enabled": false,
+  "editor.acceptSuggestionOnCommitCharacter": false,
+  "javascript.suggest.autoImports": true,
+  "typescript.suggest.autoImports": true,
+  "typescript.preferences.preferTypeOnlyAutoImports": true,
+
+  // Identificação de erros
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+  },
+  "eslint.validate": ["javascript", "javascriptreact", "graphql"],
+  "editor.renderLineHighlight": "gutter",
+  "window.titleBarStyle": "custom",
   "tabnine.experimentalAutoImports": true,
-  "typescript.preferences.importModuleSpecifier": "non-relative",
-  "vscode_vibrancy.opacity": 0.1,
-  "window.zoomLevel": 2
 }
