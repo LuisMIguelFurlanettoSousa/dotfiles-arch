@@ -156,3 +156,6 @@ print -P "${GREETING_PROMPT} zsh ${ZSH_VERSION} | ${kernel_version}"
 
 zsh_refresh_prompt
 export PATH="$HOME/.local/bin:$PATH"
+
+# drift — screensaver de terminal (clock)
+eval "$(drift shell-init zsh)"
