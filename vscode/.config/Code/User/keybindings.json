@@ -12,11 +12,6 @@
   },
   // codex
   {
-    "key": "ctrl+shift+c",
-    "command": "chatgpt.openSidebar"
-  },
-  // open command palette
-  {
     "key": "ctrl+space",
     "command": "workbench.action.quickOpen"
   },
