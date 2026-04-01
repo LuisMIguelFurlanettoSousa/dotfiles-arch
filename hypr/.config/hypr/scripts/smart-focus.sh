@@ -1,15 +1,21 @@
 #!/bin/bash
-# Navegação inteligente: se a janela ativa estiver em fullscreen,
-# sai do fullscreen, troca o foco e volta pro fullscreen.
+# Navegação inteligente: se a janela ativa estiver em fullscreen/maximizada,
+# troca o foco preservando o modo atual (maximizar ou fullscreen real).
 
 direction="$1"
 
 fullscreen=$(hyprctl activewindow -j | jq -r '.fullscreen')
 
-if [ "$fullscreen" = "true" ] || [ "$fullscreen" = "1" ] || [ "$fullscreen" = "2" ]; then
-    hyprctl dispatch fullscreen 0
-    hyprctl dispatch movefocus "$direction"
-    hyprctl dispatch fullscreen 0
-else
-    hyprctl dispatch movefocus "$direction"
-fi
+case "$fullscreen" in
+    1)
+        # Maximizado (Super+F) — preserva modo ao navegar
+        hyprctl --batch "dispatch fullscreen 1; dispatch movefocus $direction; dispatch fullscreen 1"
+        ;;
+    2|true)
+        # Fullscreen real (Super+Shift+F) — preserva modo ao navegar
+        hyprctl --batch "dispatch fullscreen 0; dispatch movefocus $direction; dispatch fullscreen 0"
+        ;;
+    *)
+        hyprctl dispatch movefocus "$direction"
+        ;;
+esac
