@@ -433,6 +433,8 @@ PACMAN_PKGS=(
     # Gerenciador de arquivos
     nemo
     file-roller
+    # Python (closed-window-listener)
+    python
     # Shell e ferramentas
     zsh
     eza
