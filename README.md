@@ -15,6 +15,61 @@
 
 ---
 
+## Contents
+
+### 🖥️ Desktop Environment
+
+| Config | Descrição |
+|--------|-----------|
+| [hyprland](hypr/) | Compositor Wayland — keybinds, animações, workspace rules, scroller layout |
+| [hypridle](hypr/) | Gerenciamento de idle — dim, lock, backlight, suspend |
+| [hyprlock](hypr/) | Tela de bloqueio |
+| [wlogout](wlogout/) | Menu de logout/shutdown |
+| [waybar](waybar/) | Barra de status customizável |
+| [rofi](rofi/) | App launcher e seletor de wallpaper |
+| [wofi](wofi/) | App launcher alternativo para Wayland |
+| [swaync](swaync/) | Central de notificações |
+
+### 🛠️ Terminal & Shell
+
+| Config | Descrição |
+|--------|-----------|
+| [ghostty](ghostty/) | Terminal GPU-accelerated |
+| [kitty](kitty/) | Terminal GPU-accelerated |
+| [alacritty](alacritty/) | Terminal GPU-accelerated |
+| [tmux](tmux/) | Multiplexador de terminal com plugins |
+| [zsh](zsh/) | Shell com zinit + syntax highlighting + fzf-tab + modo vi |
+
+### 🎨 Aparência
+
+| Config | Descrição |
+|--------|-----------|
+| [gtk-3.0](gtk-3.0/) | Tema GTK escuro (Materia + Papirus) |
+| [wallpapers](wallpapers/) | Wallpaper padrão |
+| [picom](picom/) | Compositor para X11 — transparência, blur, sombras |
+
+### 💻 Editores
+
+| Config | Descrição |
+|--------|-----------|
+| [nvim](nvim/) | Neovim com NvChad |
+| [vscode](vscode/) | Settings e keybindings do VS Code |
+
+### 🎵 Mídia
+
+| Config | Descrição |
+|--------|-----------|
+| [spicetify](spicetify/) | Theming do Spotify |
+
+### 📊 Sistema & Utilitários
+
+| Config | Descrição |
+|--------|-----------|
+| [git](git/) | Configuração global do Git |
+| [custom-scripts](custom-scripts/) | Scripts utilitários personalizados |
+
+---
+
 ## Instalação
 
 Duas formas de usar este projeto:
@@ -143,46 +198,64 @@ sudo reboot
 - **Night mode integrado** — Hyprsunset toggle via Waybar
 - **Idempotente** — rode `./install.sh` quantas vezes quiser sem quebrar nada
 
-## Stack
-
-| Componente | Programa | Descrição |
-|---|---|---|
-| Window Manager | [Hyprland](https://hyprland.org) | Compositor Wayland com animações e tiling |
-| Barra | [Waybar](https://github.com/Alexays/Waybar) | Barra de status customizável |
-| Terminal | [Ghostty](https://ghostty.org) / [Kitty](https://sw.kovidgoyal.net/kitty/) | Terminais GPU-accelerated |
-| Launcher | [Rofi](https://github.com/davatorium/rofi) / [Wofi](https://hg.sr.ht/~scoopta/wofi) | Application launchers para Wayland |
-| Notificações | [SwayNC](https://github.com/ErikReider/SwayNotificationCenter) | Central de notificações |
-| Multiplexador | [tmux](https://github.com/tmux/tmux) + TPM | Multiplexador de terminal com plugins |
-| File Manager | [Nemo](https://github.com/linuxmint/nemo) | Gerenciador de arquivos GTK |
-| Lock Screen | [Hyprlock](https://github.com/hyprwm/hyprlock) | Tela de bloqueio para Hyprland |
-| Logout | [Wlogout](https://github.com/ArtsyMacaw/wlogout) | Menu de logout/shutdown |
-| Wallpaper | [swww](https://github.com/LGFae/swww) | Daemon de wallpaper com transições |
-| Shell | [Zsh](https://www.zsh.org) + zinit | Shell com plugins e prompt customizado |
-| Editor | [Neovim](https://neovim.io) (NvChad) + [VS Code](https://code.visualstudio.com) | Editores de código |
-| Night Mode | [Hyprsunset](https://github.com/hyprwm/hyprsunset) | Filtro de luz azul |
-| Cursor | [Bibata](https://github.com/ful1e5/Bibata_Cursor) | Tema de cursor moderno |
-| GTK Theme | [Materia](https://github.com/nana-4/materia-theme) + [Papirus](https://github.com/PapirusDevelopmentTeam/papirus-icon-theme) | Tema escuro com ícones |
-
 ## Atalhos
 
+### Geral
+
 | Atalho | Ação |
-|---|---|
+|--------|------|
 | `SUPER + Enter` | Terminal |
-| `SUPER + Space` | Launcher (Wofi) |
+| `SUPER + Space` | Launcher (menu) |
+| `SUPER + R` | Launcher (alias) |
 | `SUPER + E` | Gerenciador de arquivos |
-| `SUPER + C` ou `Q` | Fechar janela |
-| `SUPER + F` | Fullscreen |
-| `SUPER + V` | Floating |
-| `SUPER + S` | Screenshot (monitor ativo) |
-| `SUPER + SHIFT + S` | Screenshot (área selecionada) |
-| `SUPER + SHIFT + L` | Lock screen |
-| `SUPER + SHIFT + Q` | Menu de logout |
 | `SUPER + W` | Seletor de wallpaper |
+| `SUPER + SHIFT + W` | Seletor de tema do lockscreen |
+| `SUPER + SHIFT + L` | Lock screen |
+| `SUPER + SHIFT + Q` | Menu de logout (wlogout) |
 | `SUPER + SHIFT + B` | Recarregar Waybar |
+| `SUPER + SHIFT + CTRL + B` | Toggle modo compacto (sem gaps/bordas) |
+
+### Janelas
+
+| Atalho | Ação |
+|--------|------|
+| `SUPER + C` | Fechar janela |
+| `SUPER + Q` | Fechar janela |
+| `SUPER + V` | Toggle floating |
+| `SUPER + F` | Maximizar (mantém waybar e gaps) |
+| `SUPER + SHIFT + F` | Fullscreen real |
+| `SUPER + P` | Pseudo (dwindle) |
+| `SUPER + T` | Toggle split (dwindle) |
+| `SUPER + SHIFT + T` | Reabrir última janela fechada |
+| `SUPER + H/J/K/L` | Navegar janelas (vim-style) |
+| `SUPER + Setas` | Navegar janelas (fullscreen → troca workspace) |
+| `SUPER + SHIFT + Setas` | Trocar janela de posição |
+| `SUPER + CTRL + Setas` | Redimensionar janela |
+| `SUPER + LMB` | Mover janela com mouse |
+| `SUPER + RMB` | Redimensionar janela com mouse |
+
+### Workspaces
+
+| Atalho | Ação |
+|--------|------|
 | `SUPER + 1-0` | Trocar workspace |
 | `SUPER + SHIFT + 1-0` | Mover janela para workspace |
-| `SUPER + H/J/K/L` | Navegar janelas (vim-style) |
-| `SUPER + SHIFT + CTRL + B` | Toggle modo compacto (sem gaps/bordas) |
+| `SUPER + Scroll` | Navegar workspaces com scroll |
+
+### Screenshots
+
+| Atalho | Ação |
+|--------|------|
+| `SUPER + S` | Screenshot do monitor ativo (copia para clipboard) |
+| `SUPER + SHIFT + S` | Screenshot de área selecionada (copia para clipboard) |
+
+### Mídia
+
+| Atalho | Ação |
+|--------|------|
+| `XF86AudioRaiseVolume` | Volume + |
+| `XF86AudioLowerVolume` | Volume − |
+| `XF86AudioMute` | Toggle mute |
 
 ## O que o install.sh faz
 
