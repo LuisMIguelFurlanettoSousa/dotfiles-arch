@@ -495,6 +495,10 @@ PACMAN_PKGS=(
     papirus-icon-theme
     # Waybar dependência (checkupdates)
     pacman-contrib
+    # Lockscreen e display manager
+    quickshell
+    sddm
+    ffmpeg
 )
 
 if [ "$INSTALL_NVIM" = true ]; then
