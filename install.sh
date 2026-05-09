@@ -819,6 +819,29 @@ else
 fi
 
 # ============================================================
+# 13.5. Aplicar otimizações de sistema (CPU, OOM, swap, ZRAM)
+# ============================================================
+
+info "Aplicando otimizações de sistema..."
+
+SYSTEM_TUNING_SCRIPT="$DOTFILES_DIR/system/install-system.sh"
+if [ -x "$SYSTEM_TUNING_SCRIPT" ]; then
+    # Em chroot, --no-start evita tentar iniciar serviços sem systemd PID 1
+    if [ "$IN_CHROOT" = true ]; then
+        TUNING_ARGS="--no-start"
+    else
+        TUNING_ARGS=""
+    fi
+    if bash "$SYSTEM_TUNING_SCRIPT" $TUNING_ARGS >> "$LOG_FILE" 2>&1; then
+        success "Tuning de sistema aplicado."
+    else
+        warn "Falha ao aplicar tuning de sistema (não-crítico, ver log)."
+    fi
+else
+    warn "system/install-system.sh não encontrado ou não executável, pulando tuning."
+fi
+
+# ============================================================
 # 14. Validação pós-instalação
 # ============================================================
 
