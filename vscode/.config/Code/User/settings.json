@@ -57,18 +57,20 @@
   "[javascriptreact]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
   },
+  "[java]": {
+    "editor.defaultFormatter": "redhat.java",
+  },
+  "java.format.settings.url": "/home/luis/.config/Code/User/eclipse-formatter.xml",
 
   // Fonte e cursor
   "editor.fontFamily": "'JetBrains Mono NL', 'Droid Sans Mono', 'monospace'",
   "editor.fontSize": 14,
   "editor.fontWeight": "400",
   "editor.lineHeight": 1.6,
-  "editor.cursorBlinking": "smooth",
   "editor.cursorWidth": 3,
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
   "editor.detectIndentation": false,
-  "editor.cursorSmoothCaretAnimation": "on",
   "editor.smoothScrolling": true,
   "workbench.list.smoothScrolling": true,
 
@@ -99,4 +101,8 @@
   "editor.renderLineHighlight": "gutter",
   "window.titleBarStyle": "custom",
   "tabnine.experimentalAutoImports": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "files.autoSave": "off",
+  "remote.autoForwardPortsSource": "hybrid",
 }
