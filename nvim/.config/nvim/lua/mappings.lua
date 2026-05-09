@@ -48,6 +48,9 @@ map("n", "<leader>fs", "<cmd>Telescope live_grep<cr>", { desc = "find string in 
 map("n", "<leader>fc", "<cmd>Telescope grep_string<cr>", { desc = "find string under cursor in cwd" })
 map("n", "<leader>ft", "<cmd>TodoTelescope<cr>", { desc = "find todos" })
 
+-- salvar com sudo
+map("n", "<leader>W", "<cmd>SudaWrite<CR>", { desc = "salvar com sudo" })
+
 -- lsp actions
 map("n", "gD", vim.lsp.buf.declaration, { desc = "go to declaration" })                               -- go to declaration
 map("n", "gd", "<cmd>Telescope lsp_definitions<CR>", { desc = "show LSP definitions" })               -- show LSP definitions
