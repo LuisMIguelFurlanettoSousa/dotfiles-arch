@@ -14,6 +14,13 @@ action="${1:-}"
 internal="eDP-1"
 internal_mode="1920x1080@144,0x0,1"
 LID_STATE_FILE="${XDG_RUNTIME_DIR:-/tmp}/hypr-lid-state"
+DISABLED_FLAG="$HOME/.config/hypr/lid-automation-disabled"
+
+# Se a automação está desativada via flag, não faz nada.
+# Gerenciado pelo comando `lid-automation on|off`.
+if [[ -f "$DISABLED_FLAG" ]]; then
+    exit 0
+fi
 
 set_lid_state() { printf '%s\n' "$1" > "$LID_STATE_FILE"; }
 lid_closed()    { [[ -f "$LID_STATE_FILE" ]] && grep -qw "closed" "$LID_STATE_FILE"; }
